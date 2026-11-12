@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Forge Studio</title>
+<html lang="en"><head><meta charset="utf-8"><title>Forge Studio – Web DAW</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
-
 :root{--bg:#23282d;--p1:#2f353b;--p2:#383f46;--line:#4a525a;--tx:#d6dde3;--dim:#8b96a0;--ac:#ff9a1f;--ok:#5fd068;--p0:#282d32;--in:#1d2226;--lcd:#14181b;--b1:#4d565e;--b2:#3b4249;--bd:#000;--t1:#3e464e;--t2:#2c3237;--ln2:#2a2f34;--hov:#414a52;--sel:#434c54;--chn:#20252a;--stp2:#5d666f;--rbg:#2b3036}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:12px/1.2 "Segoe UI",system-ui,sans-serif;overflow:hidden;user-select:none}
@@ -86,6 +85,34 @@ input.v{writing-mode:vertical-lr;direction:rtl;width:22px;height:130px;accent-co
 #helpTxt{flex:1;overflow:auto;padding:12px 20px;line-height:1.55;font-size:13px;user-select:text}
 #helpTxt h3{margin:4px 0 8px;color:var(--ac);font-size:15px}#helpTxt ul{margin:0;padding-left:18px}#helpTxt li{margin:5px 0}
 #helpTxt kbd{background:var(--in);border:1px solid var(--bd);border-radius:3px;padding:0 5px;font:11px ui-monospace,Consolas,monospace}
+
+#fxView{display:none!important;flex:1;min-height:0;flex-direction:column;overflow:hidden}
+#roll.fxon #rollScroll{display:none}#roll.fxon #fxView{display:flex}
+#fxHead{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:6px 8px;background:var(--p1);border-bottom:1px solid var(--bd)}
+#fxHead h3{margin:0;color:var(--ac);font-size:13px;letter-spacing:1px;text-transform:uppercase}
+#fxBody{flex:1;display:flex;min-height:0}
+#fxLib{flex:1;overflow:auto;padding:4px 12px 12px;min-width:0}
+#fxLib h5{margin:12px 0 6px;color:var(--ac);font-size:11px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--line);padding-bottom:3px}
+.fxg{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.fxc{position:relative;background:var(--p1);border:1px solid var(--bd);border-left:4px solid var(--fc,var(--ac));border-radius:4px;padding:7px 9px;cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.fxc:hover{background:var(--hov)}.fxc.on{outline:2px solid var(--ac);background:var(--sel)}
+.fxc b{font-size:12px}.fxc span{color:var(--dim);font-size:10.5px;line-height:1.3}
+.fxc u{text-decoration:none;font-size:9.5px;color:var(--ac)}
+.fxc .x{position:absolute;right:6px;top:4px;color:var(--dim);font-style:normal}.fxc .x:hover{color:#f55}
+#fxAdjW{width:320px;flex:none;border-left:1px solid var(--bd);background:var(--p0);display:flex;flex-direction:column;min-height:0}
+#fxAdjH{padding:8px 10px;border-bottom:1px solid var(--bd)}#fxAdjH b{color:var(--ac);text-transform:uppercase;font-size:11px;letter-spacing:1px}
+#fxSt{display:block;margin-top:3px;color:var(--dim);font-size:11px}
+#fxBtns{display:flex;flex-wrap:wrap;gap:5px;padding:7px 10px;border-bottom:1px solid var(--bd)}
+#fxAdj{flex:1;overflow:auto;padding:2px 10px 12px}
+#fxAdj h6{margin:10px 0 4px;color:var(--dim);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.fxr{display:grid;grid-template-columns:92px 1fr 58px;gap:6px;align-items:center;margin:3px 0}
+.fxn{color:var(--tx);cursor:default}.fxr input{width:100%;accent-color:var(--ac)}.fxv{color:var(--ac);font:11px ui-monospace,Consolas,monospace;text-align:right}
+#rollRuler{flex:none;height:20px;background:var(--p0);border-bottom:1px solid var(--bd);cursor:pointer;overflow:hidden}#ruler{display:block}
+#roll.fxon #rollRuler{display:none}
+#tRoll{display:none}#nfx{display:none;background:var(--p0);border-bottom:1px solid var(--bd);padding:6px 10px;max-height:42%;overflow:auto;flex:none}#roll.nfxon #nfx{display:block}
+#nfxH{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:6px}#nfxH>b{color:#ff4fa3;text-transform:uppercase;letter-spacing:1px;font-size:12px}#nfxSt{color:var(--dim);font-size:11px;margin-right:6px;flex:1 1 260px}#nfxPre{display:contents}
+#nfxG{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:4px 16px}#nfx.none #nfxG{opacity:.4;pointer-events:none}.ng h6{margin:4px 0 2px;color:var(--dim);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.nr{display:grid;grid-template-columns:90px 1fr 60px;gap:6px;align-items:center;margin:2px 0}.nr input{width:100%;accent-color:#ff4fa3}.nv{font:11px ui-monospace,Consolas,monospace;color:var(--ac);font-style:normal;text-align:right}
 </style></head><body>
 <div id="app">
 <header id="top">
@@ -109,13 +136,29 @@ input.v{writing-mode:vertical-lr;direction:rtl;width:22px;height:130px;accent-co
  <div id="rollBar">
   <button class="b" id="rMax" title="Maximize / restore piano roll (Esc to restore)">⤢ Maximize</button><button class="b" id="rPlay" title="Play / pause (Space)">▶</button>
   <b id="rName"></b><select id="rInst"></select>
+  <span class="grp" id="rTabs"><button class="b on" id="tRoll">Piano Roll</button><button class="b" id="tFx" title="Effects library &amp; adjustments">Note FX</button></span>
+  <span id="rollTools" style="display:contents">
   <label>Snap <select id="rSnap"><option value=".5">1/32</option><option value="1" selected>1/16</option><option value="2">1/8</option><option value="4">1/4</option><option value="16">Bar</option></select></label>
   <label>Velocity <input type="range" id="rVel" min=".1" max="1" step=".01" value=".8" style="width:70px;accent-color:var(--ac)"></label>
   <label>Keys oct <button class="b" id="oDn">−</button><span id="oV">C4</span><button class="b" id="oUp">+</button></label>
-  <button class="b" id="rClr">Clear notes</button><button class="b" id="rAddPl" title="Place this pattern on this channel's playlist track (first free spot)">+ Add to playlist</button>
+  <button class="b" id="rClr">Clear notes</button><button class="b" id="rAddPl" title="Place this pattern on this channel's playlist track (first free spot)">+ Add to playlist</button></span>
   
  </div>
+ <div id="nfx"><div id="nfxH"><b>Note FX</b><span id="nfxSt"></span><span id="nfxPre"></span><button class="b" id="nfxHear">▶ Hear note</button><button class="b" id="nfxClr">Clear FX</button></div><div id="nfxG"></div></div>
+ <div id="rollRuler" title="Click or drag to choose where playback starts (jumps live while playing)"><canvas id="ruler" height="20"></canvas></div>
  <div id="rollScroll"><div id="rollInner"><canvas id="keys" width="56"></canvas><canvas id="grid"></canvas><div id="phP"></div></div></div>
+ <div id="fxView">
+  <div id="fxHead"><h3>FX Library</h3>
+   <label>Apply presets to <select id="fxScope"><option value="all">All channels</option><option value="sel">Selected channel only</option></select></label>
+   <button class="b" id="fxRaw" title="Bypass the mixer reverb sends so the mix is fully raw">Raw mix</button>
+   <button class="b" id="fxAud" title="Play a short test phrase on the selected channel">▶ Audition</button>
+   <button class="b" id="fxBack">← Piano Roll</button>
+   <span class="hint">Click a preset to load it. Press computer-keyboard keys (Z–M) to hear it while you tweak.</span></div>
+  <div id="fxBody"><div id="fxLib"></div>
+   <div id="fxAdjW"><div id="fxAdjH"><b>Effect adjustments</b><span id="fxSt"></span></div>
+    <div id="fxBtns"><button class="b" id="fxByp">Bypass</button><button class="b" id="fxRst" title="Reset this channel to Acoustic (no effects)">Reset</button><button class="b" id="fxCopy" title="Copy this channel's settings to every channel">Copy to all</button><button class="b" id="fxSave" title="Save these settings as your own preset">Save preset</button></div>
+    <div id="fxAdj"></div></div></div>
+ </div>
 </section>
 </div>
 <div id="toast"></div>
@@ -140,10 +183,18 @@ const CAT={
 const CATCOL={'Strings':'#ff7a59','Bass':'#4fc3f7','Pads':'#b388ff','Synths':'#ffd54f','Pianos':'#64b5f6','Keys & Winds':'#81c784','Drums':'#ef5350'};
 const DEFTRK={'Drums':0,'Bass':1,'Strings':2,'Pads':3,'Synths':4,'Pianos':4,'Keys & Winds':4};
 const FALLBACK={'Strings':'strfb','Bass':'sub','Pads':'pad','Synths':'pluck','Pianos':'pluck','Keys & Winds':'pluck'};
+Object.assign(CAT,{
+'Organs':[['Drawbar Organ','sf','drawbar_organ'],['Percussive Organ','sf','percussive_organ'],['Rock Organ','sf','rock_organ'],['Church Organ','sf','church_organ'],['Reed Organ','sf','reed_organ'],['Accordion','sf','accordion'],['Tango Accordion','sf','tango_accordion'],['Harmonica','sf','harmonica'],['Organ (built-in)','syn','organ']],
+'Guitars':[['Nylon Guitar','sf','acoustic_guitar_nylon'],['Steel Guitar','sf','acoustic_guitar_steel'],['Jazz Guitar','sf','electric_guitar_jazz'],['Clean Guitar','sf','electric_guitar_clean'],['Muted Guitar','sf','electric_guitar_muted'],['Overdrive Guitar','sf','overdriven_guitar'],['Distortion Guitar','sf','distortion_guitar'],['Banjo','sf','banjo']],
+'Winds & Brass':[['Piccolo','sf','piccolo'],['Recorder','sf','recorder'],['Pan Flute','sf','pan_flute'],['Oboe','sf','oboe'],['English Horn','sf','english_horn'],['Clarinet','sf','clarinet'],['Bassoon','sf','bassoon'],['Soprano Sax','sf','soprano_sax'],['Alto Sax','sf','alto_sax'],['Tenor Sax','sf','tenor_sax'],['Baritone Sax','sf','baritone_sax'],['Muted Trumpet','sf','muted_trumpet'],['Trombone','sf','trombone'],['Tuba','sf','tuba'],['Brass Section','sf','brass_section'],['Synth Brass','sf','synth_brass_1']],
+'Mallets & World':[['Marimba','sf','marimba'],['Xylophone','sf','xylophone'],['Glockenspiel','sf','glockenspiel'],['Tubular Bells','sf','tubular_bells'],['Kalimba','sf','kalimba'],['Steel Drums','sf','steel_drums'],['Koto','sf','koto'],['Sitar','sf','sitar'],['Shamisen','sf','shamisen']]});
+Object.assign(CATCOL,{'Organs':'#e6a23c','Guitars':'#d4785a','Winds & Brass':'#5fc9a0','Mallets & World':'#c08adf'});
+Object.assign(DEFTRK,{'Organs':4,'Guitars':4,'Winds & Brass':4,'Mallets & World':4});
+Object.assign(FALLBACK,{'Organs':'organ','Guitars':'pluck','Winds & Brass':'strfb','Mallets & World':'pluck'});
 const PATCOL=['#5fb3d0','#d08a5f','#8fd05f','#c75fd0','#d0c85f','#5fd0a8'];
 /* ---------- state ---------- */
 let S={bpm:100,mode:'pat',cur:0,sel:0,bank:'FluidR3_GM',master:.85,snap:1,vel:.8,lastLen:2,oct:60,rec:false,met:false,loop:true,
- patterns:[],channels:[],playlist:[],
+ patterns:[],channels:[],playlist:[],userFx:[],dryMix:false,
  tracks:['Drums','Bass','Strings','Pads','Lead','Insert 6','Insert 7','Insert 8'].map((n,i)=>({name:n,vol:.8,pan:0,send:[.03,.05,.3,.35,.28,0,0,0][i],mute:false}))};
 let nextId=1;
 const cp=()=>S.patterns[S.cur];
@@ -156,7 +207,9 @@ function undo(){if(!undoS.length){toast('Nothing to undo');return}redoS.push(sta
 function redo(){if(!redoS.length){toast('Nothing to redo');return}undoS.push(stateSnap());restoreState(redoS.pop())}
 const toast=(m)=>{const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('on'),3800)};
 /* ---------- audio engine ---------- */
-let ctx,master,comp,mAn,recDest,rev,revG,noiseBuf,trk=[],chN={};
+let NB=null,NFXN=null;const nfxCut=v=>200*Math.pow(100,v),NFD={fi:0,fo:0,vd:0,vr:5.5,vdl:.35,td:0,tr:5,bend:'off',ba:1,bt:.15,la:1};
+
+let ctx,master,comp,mAn,recDest,rev,revG,noiseBuf,trk=[],chN={},fxRv=[];
 function initAudio(){
  if(ctx)return;
  ctx=new(window.AudioContext||window.webkitAudioContext)({latencyHint:'interactive'});
@@ -168,19 +221,96 @@ function initAudio(){
  const len=Math.floor(ctx.sampleRate*2.4),ir=ctx.createBuffer(2,len,ctx.sampleRate);
  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.6)}
  rev=ctx.createConvolver();rev.buffer=ir;revG=ctx.createGain();revG.gain.value=.8;rev.connect(revG);revG.connect(master);
+ fxRv=[[.8,3.2],[2.2,2.6],[4.8,2.4]].map(([sec,ex])=>{const L=Math.floor(ctx.sampleRate*sec),b=ctx.createBuffer(2,L,ctx.sampleRate);
+  for(let c=0;c<2;c++){const d=b.getChannelData(c);let y=0;for(let i=0;i<L;i++){const a=.55*(1-i/L)+.07;y+=((Math.random()*2-1)-y)*a;d[i]=y*Math.pow(1-i/L,ex)}}
+  const cv=ctx.createConvolver();cv.buffer=b;cv.connect(master);return cv});
  const nl=Math.floor(ctx.sampleRate*2.5);noiseBuf=ctx.createBuffer(1,nl,ctx.sampleRate);
  const nd=noiseBuf.getChannelData(0);for(let i=0;i<nl;i++)nd[i]=Math.random()*2-1;
  S.tracks.forEach((t,i)=>{const n={};n.in=ctx.createGain();n.pan=ctx.createStereoPanner();n.an=ctx.createAnalyser();n.an.fftSize=512;n.send=ctx.createGain();
   n.in.connect(n.pan);n.pan.connect(master);n.pan.connect(n.an);n.pan.connect(n.send);n.send.connect(rev);trk[i]=n;applyTrack(i)});
 }
-function applyTrack(i){const t=S.tracks[i],n=trk[i];if(!n)return;n.in.gain.value=t.mute?0:t.vol;n.pan.pan.value=t.pan;n.send.gain.value=t.send}
+function applyTrack(i){const t=S.tracks[i],n=trk[i];if(!n)return;n.in.gain.value=t.mute?0:t.vol;n.pan.pan.value=t.pan;n.send.gain.value=S.dryMix?0:t.send}
 function chNode(ch){
  let n=chN[ch.id];
- if(!n){n=chN[ch.id]={g:ctx.createGain(),p:ctx.createStereoPanner(),t:-1};n.g.connect(n.p)}
+ if(!n){n=chN[ch.id]={g:ctx.createGain(),p:ctx.createStereoPanner(),t:-1,k:''};buildFx(n);n.g.connect(n.fxIn);n.out.connect(n.p)}
  if(n.t!==ch.track){try{n.p.disconnect()}catch(e){}n.p.connect(trk[ch.track].in);n.t=ch.track}
- n.g.gain.value=ch.vol;n.p.pan.value=ch.pan;return n;
+ n.g.gain.value=ch.vol;n.p.pan.value=ch.pan;const P=fxP(ch),k=JSON.stringify(P);if(n.k!==k){applyFx(n,P,n.k==='');n.k=k}return n;
 }
-function panic(){for(const id in chN){const n=chN[id];try{n.g.disconnect()}catch(e){}n.g=ctx.createGain();n.g.connect(n.p)}}
+function panic(){for(const id in chN){const n=chN[id];try{n.g.disconnect()}catch(e){}n.g=ctx.createGain();n.g.connect(n.fxIn)}}
+/* ---------- effects engine ---------- */
+const fmtP=v=>Math.round(v*100)+'%',fmtMs=v=>Math.round(v*1000)+' ms',fmtHz=v=>v>=1000?(v/1000).toFixed(1)+' kHz':Math.round(v)+' Hz',fmtDb=v=>(v>0?'+':'')+v.toFixed(1)+' dB',fmtR=v=>v.toFixed(1)+' Hz';
+const FXP=[
+ {k:'rev',n:'Reverb',g:'Space',min:0,max:1,def:0,f:fmtP},
+ {k:'size',n:'Room size',g:'Space',min:0,max:1,def:.5,f:v=>(v<.34?'Small ':v<.67?'Hall ':'Huge ')+fmtP(v)},
+ {k:'eMix',n:'Echo mix',g:'Echo',min:0,max:1,def:0,f:fmtP},
+ {k:'eTime',n:'Echo time',g:'Echo',min:.04,max:1,def:.3,f:fmtMs},
+ {k:'eFb',n:'Feedback',g:'Echo',min:0,max:.9,def:.35,f:fmtP},
+ {k:'cho',n:'Chorus mix',g:'Modulation',min:0,max:1,def:0,f:fmtP},
+ {k:'choR',n:'Chorus rate',g:'Modulation',min:.1,max:6,def:1.2,f:fmtR},
+ {k:'choD',n:'Chorus depth',g:'Modulation',min:0,max:1,def:.5,f:fmtP},
+ {k:'trem',n:'Tremolo',g:'Modulation',min:0,max:1,def:0,f:fmtP},
+ {k:'tremR',n:'Tremolo rate',g:'Modulation',min:.5,max:12,def:5,f:fmtR},
+ {k:'lo',n:'Bass',g:'Tone',min:-12,max:12,def:0,f:fmtDb},
+ {k:'hi',n:'Treble',g:'Tone',min:-12,max:12,def:0,f:fmtDb},
+ {k:'hp',n:'High-pass',g:'Tone',min:20,max:2000,def:20,log:1,f:fmtHz},
+ {k:'lp',n:'Low-pass',g:'Tone',min:200,max:20000,def:20000,log:1,f:fmtHz},
+ {k:'drv',n:'Drive',g:'Grit',min:0,max:1,def:0,f:fmtP},
+ {k:'vol',n:'Output level',g:'Output',min:0,max:1.5,def:1,f:fmtP}];
+const FXD={},FXDEF={};FXP.forEach(d=>{FXD[d.k]=d;FXDEF[d.k]=d.def});
+const toSl=(d,v)=>Math.round(1000*(d.log?Math.log(v/d.min)/Math.log(d.max/d.min):(v-d.min)/(d.max-d.min)));
+const fromSl=(d,t)=>{t=t/1000;return d.log?d.min*Math.pow(d.max/d.min,t):d.min+(d.max-d.min)*t};
+const FXPRE=[
+ {n:'Acoustic',c:'Natural',d:'Raw and unprocessed – every effect off, the pattern exactly as played.',p:{},raw:1},
+ {n:'Small Room',c:'Natural',d:'Short, subtle ambience, like a studio booth.',p:{rev:.2,size:.05,hp:60}},
+ {n:'Concert Hall',c:'Natural',d:'Natural hall reverb with a touch of warmth.',p:{rev:.38,size:.7,lo:1.5,hp:50}},
+ {n:'Cathedral',c:'Natural',d:'Huge stone space with a long glowing tail.',p:{rev:.62,size:1,lp:12000,hp:70,vol:.95}},
+ {n:'Cinematic',c:'Cinematic',d:'Wide, epic film-score sound: big hall, soft echo, silky chorus.',p:{rev:.55,size:.9,eMix:.16,eTime:.43,eFb:.4,cho:.22,choR:.5,choD:.5,lo:2.5,hi:2,hp:40,lp:15000,drv:.04}},
+ {n:'Cinematic Epic',c:'Cinematic',d:'Trailer-sized power: massive reverb, thick lows, shimmering highs.',p:{rev:.7,size:1,eMix:.2,eTime:.5,eFb:.5,cho:.3,choR:.4,choD:.7,lo:5,hi:3,hp:35,drv:.1,vol:.9}},
+ {n:'Cinematic Dark',c:'Cinematic',d:'Brooding suspense: dark filtered tone and deep dim space.',p:{rev:.6,size:.95,eMix:.22,eTime:.55,eFb:.5,cho:.18,choR:.3,lo:4,hi:-5,lp:4500,hp:45}},
+ {n:'Cinematic Tension',c:'Cinematic',d:'Pulsing tremolo with eerie echoes – thriller scoring.',p:{rev:.5,size:.85,eMix:.28,eTime:.38,eFb:.55,trem:.45,tremR:6,lp:7000,hp:120,hi:-2}},
+ {n:'Dreamy',c:'Spacey',d:'Soft, floating wash of reverb, echo and slow chorus.',p:{rev:.7,size:.9,eMix:.3,eTime:.55,eFb:.55,cho:.35,choR:.35,choD:.7,lp:9000,hi:-2}},
+ {n:'Dub Echo',c:'Spacey',d:'Long repeating echoes that fade into the distance.',p:{rev:.25,size:.5,eMix:.5,eTime:.38,eFb:.68,hp:200,lp:6000}},
+ {n:'Underwater',c:'Spacey',d:'Muffled and wobbling, as if heard through water.',p:{rev:.4,size:.6,cho:.55,choR:.6,choD:.9,lp:700,lo:3}},
+ {n:'Ghost Hall',c:'Spacey',d:'Cold, hollow and haunting.',p:{rev:.65,size:1,eMix:.35,eTime:.62,eFb:.6,trem:.2,tremR:3,hp:300,lp:8000,hi:2}},
+ {n:'Lo-Fi',c:'Tone & Color',d:'Dusty, band-limited, slightly wobbly – chill beats.',p:{rev:.15,size:.3,cho:.4,choR:.4,choD:.8,hp:120,lp:3800,drv:.25,hi:-4,lo:2,vol:.95}},
+ {n:'Warm Tape',c:'Tone & Color',d:'Soft saturation and gentle wobble, like an old tape deck.',p:{eMix:.14,eTime:.22,eFb:.3,cho:.15,choR:.3,choD:.5,drv:.2,lp:7500,hi:-3,lo:2}},
+ {n:'Telephone',c:'Tone & Color',d:'Narrow, crunchy radio / phone sound.',p:{hp:600,lp:3200,drv:.35,vol:1.1}},
+ {n:'Bright & Airy',c:'Tone & Color',d:'Open, sparkling top end with light space.',p:{rev:.3,size:.6,hi:6,lo:-1,hp:150}},
+ {n:'Dark & Moody',c:'Tone & Color',d:'Rolled-off highs and heavy lows.',p:{rev:.35,size:.7,lp:2800,lo:4,hi:-4}},
+ {n:'Overdrive',c:'Grit & Motion',d:'Warm crunchy break-up.',p:{drv:.55,lp:6500,hp:80,vol:.85}},
+ {n:'Heavy Distortion',c:'Grit & Motion',d:'Maximum fuzz and aggression.',p:{drv:1,lp:5000,hp:100,lo:2,vol:.6}},
+ {n:'Wide Chorus',c:'Grit & Motion',d:'Thick, shimmering doubled sound.',p:{cho:.6,choR:1.5,choD:.6,rev:.15,size:.4}},
+ {n:'Tremolo Vibe',c:'Grit & Motion',d:'Classic amp-style pulsing volume.',p:{trem:.65,tremR:5.5,rev:.2,size:.35,drv:.08}}];
+const DCURVE=(()=>{const c=new Float32Array(1024);for(let i=0;i<1024;i++){const x=i/511.5-1;c[i]=Math.tanh(x*2.2)/Math.tanh(2.2)}return c})();
+function fxP(ch){return ch.fx&&!ch.fx.off?Object.assign({},FXDEF,ch.fx.p):FXDEF}
+function buildFx(n){
+ const G=()=>ctx.createGain(),f=n.f={};
+ f.hp=bq('highpass',20,.707);f.lp=bq('lowpass',20000,.707);f.lo=bq('lowshelf',200);f.hi=bq('highshelf',4000);
+ f.dsPre=G();f.ds=ctx.createWaveShaper();f.ds.curve=DCURVE;f.ds.oversample='2x';f.dsW=G();f.dsD=G();f.dsM=G();
+ f.tg=G();f.tl=ctx.createOscillator();f.tlg=G();
+ f.cD=G();f.cdl=ctx.createDelay(.1);f.cdl.delayTime.value=.015;f.cl=ctx.createOscillator();f.clg=G();f.cW=G();f.cM=G();
+ f.eD=G();f.ed=ctx.createDelay(2);f.fbF=bq('lowpass',3800,.707);f.fb=G();f.eW=G();f.out=G();f.rs=[G(),G(),G()];
+ f.hp.connect(f.lp);f.lp.connect(f.lo);f.lo.connect(f.hi);
+ f.hi.connect(f.dsD);f.dsD.connect(f.dsM);f.hi.connect(f.dsPre);f.dsPre.connect(f.ds);f.ds.connect(f.dsW);f.dsW.connect(f.dsM);
+ f.dsM.connect(f.tg);f.tl.connect(f.tlg);f.tlg.connect(f.tg.gain);
+ f.tg.connect(f.cD);f.cD.connect(f.cM);f.tg.connect(f.cdl);f.cdl.connect(f.cW);f.cW.connect(f.cM);f.cl.connect(f.clg);f.clg.connect(f.cdl.delayTime);
+ f.cM.connect(f.eD);f.eD.connect(f.out);f.cM.connect(f.ed);f.ed.connect(f.eW);f.eW.connect(f.out);f.ed.connect(f.fbF);f.fbF.connect(f.fb);f.fb.connect(f.ed);
+ f.rs.forEach((g,i)=>{f.out.connect(g);g.connect(fxRv[i])});
+ f.tl.type='sine';f.cl.type='sine';f.tl.start();f.cl.start();f.eD.gain.value=1;
+ n.fxIn=f.hp;n.out=f.out;
+}
+function applyFx(n,P,init){
+ const f=n.f,T=ctx.currentTime,s=(a,v)=>{if(init)a.value=v;else a.setTargetAtTime(v,T,.02)};
+ s(f.hp.frequency,P.hp);s(f.lp.frequency,P.lp);s(f.lo.gain,P.lo);s(f.hi.gain,P.hi);
+ const dw=P.drv>0?Math.min(1,P.drv*3):0;
+ s(f.dsPre.gain,1+P.drv*12);s(f.dsW.gain,dw/(1+P.drv*2.5));s(f.dsD.gain,1-dw);
+ s(f.tg.gain,1-P.trem/2);s(f.tlg.gain,P.trem/2);s(f.tl.frequency,P.tremR);
+ s(f.cl.frequency,P.choR);s(f.clg.gain,.0008+P.choD*.006);s(f.cW.gain,P.cho);s(f.cD.gain,1-P.cho*.35);
+ s(f.ed.delayTime,P.eTime);s(f.fb.gain,P.eFb);s(f.eW.gain,P.eMix);s(f.out.gain,P.vol);
+ const z=P.size,w=[Math.max(0,1-2*z),1-Math.abs(2*z-1),Math.max(0,2*z-1)];
+ f.rs.forEach((g,i)=>s(g.gain,P.rev*w[i]));
+}
+function dropChN(){for(const id in chN){const n=chN[id];try{n.f.tl.stop();n.f.cl.stop()}catch(e){}try{n.p.disconnect()}catch(e){}try{n.out.disconnect()}catch(e){}}chN={}}
 /* sample loading (real instrument recordings, MIDI.js soundfonts) */
 const sfBufs={};
 const b64ab=b=>{const s=atob(b),n=s.length,u=new Uint8Array(n);for(let i=0;i<n;i++)u[i]=s.charCodeAt(i);return u.buffer};
@@ -206,12 +336,12 @@ function loadSF(inst){
  return rec;
 }
 const chState=ch=>{if(ch.type!=='sf')return'ok';const r=sfBufs[S.bank+'/'+ch.inst];return r?r.state:'load'};
-function relOf(ch){if(ch.cat==='Pads')return .9;if(ch.cat==='Bass')return .12;if(/pizz|harp|guitar/.test(ch.inst))return .15;if(/piano/.test(ch.inst))return .5;if(/harpsichord|clavinet|music_box|celesta/.test(ch.inst))return .2;if(/vibraphone/.test(ch.inst))return .6;if(ch.cat==='Strings')return .35;return .3}
+function relOf(ch){if(ch.cat==='Organs')return .12;if(ch.cat==='Pads')return .9;if(ch.cat==='Bass')return .12;if(/pizz|harp|guitar/.test(ch.inst))return .15;if(/piano/.test(ch.inst))return .5;if(/harpsichord|clavinet|music_box|celesta/.test(ch.inst))return .2;if(/vibraphone/.test(ch.inst))return .6;if(ch.cat==='Strings')return .35;return .3}
 function sfPlay(rec,m,t,dur,vel,dest,rel){
  let base=m,buf=rec.bufs[m];
  for(let k=1;k<12&&!buf;k++){if(rec.bufs[m-k]){buf=rec.bufs[m-k];base=m-k}else if(rec.bufs[m+k]){buf=rec.bufs[m+k];base=m+k}}
  if(!buf)return;
- const s=ctx.createBufferSource();s.buffer=buf;s.playbackRate.value=Math.pow(2,(m-base)/12);
+ const s=ctx.createBufferSource();s.buffer=buf;s.playbackRate.value=Math.pow(2,(m-base)/12);artBend(s.playbackRate,Math.pow(2,(m-base)/12),t,dur);nfxVib(s.detune,t,dur+rel);
  const g=ctx.createGain();s.connect(g);g.connect(dest);
  const end=t+Math.max(.05,dur),v=vel*.9;
  g.gain.setValueAtTime(v,t);g.gain.setValueAtTime(v,end);g.gain.linearRampToValueAtTime(0,end+rel);
@@ -219,6 +349,7 @@ function sfPlay(rec,m,t,dur,vel,dest,rel){
 }
 /* built-in synth voices */
 const PRE={
+ organ:{o:[['sine',0],['sine',1200],['triangle',-1200],['sine',1902]],cut:5000,q:.5,a:.012,d:.05,s:1,r:.08,pk:.14},
  supersaw:{o:[['sawtooth',-14],['sawtooth',-7],['sawtooth',0],['sawtooth',7],['sawtooth',14]],cut:4500,q:1,a:.01,d:.2,s:.7,r:.3,pk:.13},
  sub:{o:[['sine',0],['triangle',0]],cut:700,q:.7,a:.005,d:.15,s:.85,r:.12,pk:.45},
  pad:{o:[['sawtooth',-9],['sawtooth',9],['triangle',0],['sawtooth',-1195]],cut:1500,q:.8,a:.7,d:.5,s:.8,r:1.3,pk:.11},
@@ -234,7 +365,7 @@ function synthNote(name,m,t,dur,vel,dest){
  g.gain.setTargetAtTime(0,e,p.r/3);
  const stop=e+p.r+.15;let lfo,lg;
  if(p.vib){lfo=ctx.createOscillator();lfo.frequency.value=5.4;lg=ctx.createGain();lg.gain.value=7;lfo.connect(lg);lfo.start(t);lfo.stop(stop)}
- for(const[type,det]of p.o){const o=ctx.createOscillator();o.type=type;o.frequency.value=f;o.detune.value=det;if(lg)lg.connect(o.detune);o.connect(flt);o.start(t);o.stop(stop)}
+ for(const[type,det]of p.o){const o=ctx.createOscillator();o.type=type;o.frequency.value=f;o.detune.value=det;artBend(o.frequency,f,t,dur);nfxVib(o.detune,t,dur+p.r);if(lg)lg.connect(o.detune);o.connect(flt);o.start(t);o.stop(stop)}
 }
 /* synthesized drums */
 function nsrc(t,d){const s=ctx.createBufferSource();s.buffer=noiseBuf;s.start(t,Math.random()*.4);s.stop(t+d);return s}
@@ -266,8 +397,8 @@ function drum(k,t,v,dest){
   [587,845].forEach(fr=>{const o=ctx.createOscillator();o.type='square';o.frequency.value=fr;o.connect(f);o.start(t);o.stop(t+.4)});
  }
 }
-function playNote(ch,m,t,dur,vel){
- const n=chNode(ch);
+function playNote0(ch,m,t,dur,vel,D){
+ const n={g:D};
  if(ch.type==='drum')return drum(ch.inst,t,vel,n.g);
  if(ch.type==='sf'){
   const r=sfBufs[S.bank+'/'+ch.inst];
@@ -293,7 +424,7 @@ function trigPat(p,ls,time,only){
   if(only!==undefined&&ch.id!==only)continue;
   if(!audible(ch))continue;
   const L=p.notes[ch.id];if(!L)continue;
-  for(const n of L){if(Math.floor(n.t+1e-6)===ls)playNote(ch,n.n,time+(n.t-ls)*sd,n.d*sd,n.v)}
+  for(const n of L){if(Math.floor(n.t+1e-6)===ls)playNote(ch,n.n,time+(n.t-ls)*sd,n.d*sd,n.v,n.fx)}
  }
 }
 function click(t,acc){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=acc?1500:1000;g.gain.setValueAtTime(.25,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);o.connect(g);g.connect(master);o.start(t);o.stop(t+.05)}
@@ -445,7 +576,7 @@ function sizeRoll(){
  if(grid.height!==h){grid.height=h;keys.height=h}
  extent();
 }
-function renderRoll(center){
+function renderRoll(center){if(fxOn())renderFx();
  const ch=S.channels[S.sel],rs=$('#rollScroll');
  $('#rName').textContent=ch?ch.name:'(no channel)';
  const sel=$('#rInst');if(ch)sel.value=ch.cat+'|'+CAT[ch.cat].findIndex(i=>i[2]===ch.inst);
@@ -485,7 +616,7 @@ function drawRoll(){
  for(let r=0;r<ROWS;r++){const m=HI-r;gc.fillStyle=isBlack(m)?TC.rowB:TC.rowW;gc.fillRect(ox,r*RH,gw,RH);gc.fillStyle=m%12===0?TC.oct:TC.rowLn;gc.fillRect(ox,r*RH+RH-1,gw,1)}
  for(let s=Math.floor(ox/SW);s<=Math.ceil(x1/SW);s++){gc.fillStyle=s%16===0?TC.gBar:s%4===0?TC.gBeat:TC.gStep;gc.fillRect(s*SW,0,1,h)}
  if(x1>W*SW){const bx=Math.max(ox,W*SW);gc.fillStyle='rgba(0,0,0,.3)';gc.fillRect(bx,0,x1-bx,h)}
- if(W*SW>=ox&&W*SW<=x1){gc.fillStyle=TC.ac;gc.fillRect(W*SW-1,0,2,h)}
+ if(W*SW>=ox&&W*SW-34<=x1){const sy=$('#rollScroll').scrollTop;gc.fillStyle=TC.ac;gc.fillRect(W*SW-1,0,2,h);gc.fillRect(W*SW-32,sy,32,13);gc.fillStyle='#1a1a1a';gc.font='bold 9px sans-serif';gc.fillText('END ⇔',W*SW-30,sy+10)}
  S.channels.forEach((o,i)=>{if(i===S.sel)return;gc.globalAlpha=.2;gc.fillStyle=o.color;for(const n of nts(p,o)){if((n.t+n.d)*SW<ox||n.t*SW>x1)continue;gc.fillRect(n.t*SW,(HI-n.n)*RH+1,n.d*SW-1,RH-2)}gc.globalAlpha=1});
  if(!ch)return;
  gc.font='10px sans-serif';
@@ -493,7 +624,7 @@ function drawRoll(){
   if(n.n<LO||n.n>HI||(n.t+n.d)*SW<ox||n.t*SW>x1)continue;
   const x=n.t*SW,y=(HI-n.n)*RH,ww=n.d*SW;
   gc.globalAlpha=1;gc.fillStyle=ch.color;gc.fillRect(x,y+1,ww-1,RH-2);gc.globalAlpha=1;
-  if(selNotes.has(n)){gc.fillStyle='rgba(255,255,255,.35)';gc.fillRect(x,y+1,ww-1,RH-2);gc.strokeStyle='#fff';gc.lineWidth=2;gc.strokeRect(x+1,y+2,ww-3,RH-4);gc.lineWidth=1}else{gc.strokeStyle='#000b';gc.strokeRect(x+.5,y+1.5,ww-2,RH-3)}
+  if(n.fx){gc.fillStyle='#ff4fa3';gc.fillRect(x,y+1,3,RH-2)}if(selNotes.has(n)||n===NFXN){gc.fillStyle='rgba(255,255,255,.35)';gc.fillRect(x,y+1,ww-1,RH-2);gc.strokeStyle='#fff';gc.lineWidth=2;gc.strokeRect(x+1,y+2,ww-3,RH-4);gc.lineWidth=1}else{gc.strokeStyle='#000b';gc.strokeRect(x+.5,y+1.5,ww-2,RH-3)}
   if(ww>34){gc.fillStyle='#000c';gc.fillText(mname(n.n),x+4,y+RH-4)}
  }
  if(box){const bx=Math.min(box.x0,box.x1),by=Math.min(box.y0,box.y1),bw=Math.abs(box.x1-box.x0),bh=Math.abs(box.y1-box.y0);
@@ -511,10 +642,11 @@ grid.addEventListener('mousedown',e=>{
  const L=nts(cp(),ch),{x,y}=gpos(e),step=x/SW,pitch=HI-Math.floor(y/RH);
  if(e.shiftKey||e.ctrlKey||e.metaKey){box={x0:x,y0:y,x1:x,y1:y,add:e.shiftKey};drag={mode:'box'};if(!e.shiftKey)clearSel();drawRoll();return}
  let n=L.find(n=>n.n===pitch&&step>=n.t&&step<n.t+n.d);
+ if(onEndHandle(x,y,n)){pushUndo();clearSel();drag={mode:'end'};drawRoll();return}
  pushUndo();
- if(!n){clearSel();const t=Math.floor(step/S.snap)*S.snap;n={t,d:Math.max(S.snap,S.lastLen),n:pitch,v:S.vel};L.push(n);grow(n.t+n.d);preview(ch,pitch,Math.max(.4,n.d*stepDur()));drag={mode:'new',n,sx:x}}
+ if(!n){clearSel();const t=Math.floor(step/S.snap)*S.snap;n={t,d:Math.max(S.snap,S.lastLen),n:pitch,v:S.vel};L.push(n);grow(n.t+n.d);preview(ch,pitch,Math.max(.4,n.d*stepDur()));NFXN=n;drag={mode:'new',n,sx:x}}
  else{
-  if(!selNotes.has(n))clearSel();
+  NFXN=n;if(!selNotes.has(n))clearSel();
   const z=edgeZone(n,x);
   if(z==='r')drag={mode:'size',n,sx:x};
   else if(z==='l')drag={mode:'sizeL',n,end:n.t+n.d};
@@ -528,7 +660,7 @@ grid.addEventListener('mousemove',e=>{
  if(drag)return;const ch=S.channels[S.sel];if(!ch)return;
  const step=x/SW,pitch=HI-Math.floor(y/RH);
  const n=nts(cp(),ch).find(n=>n.n===pitch&&step>=n.t&&step<n.t+n.d);
- grid.style.cursor=(e.shiftKey||e.ctrlKey||e.metaKey)?'crosshair':n?(edgeZone(n,x)?'ew-resize':'grab'):'crosshair';
+ grid.style.cursor=onEndHandle(x,y,n)?'ew-resize':(e.shiftKey||e.ctrlKey||e.metaKey)?'crosshair':n?(edgeZone(n,x)?'ew-resize':'grab'):'crosshair';
 });
 grid.addEventListener('mouseleave',()=>{hoverStep=null});
 grid.addEventListener('contextmenu',e=>{
@@ -552,6 +684,7 @@ function dragMove(e){
  },30);
  const ch=S.channels[S.sel],{x,y}=gpos(e),step=x/SW,W=1e7;
  if(drag.mode==='box'){box.x1=Math.max(0,Math.min(W*SW,x));box.y1=Math.max(0,Math.min(ROWS*RH,y));drawRoll();return}
+ if(drag.mode==='end'){const p=cp(),nb=Math.max(1,Math.min(256,Math.round(x/(16*SW))));if(nb!==p.bars){p.bars=nb;grew=false;extent();renderPatBars()}grid.style.cursor='ew-resize';drawRoll();return}
  const n=drag.n;
  if(drag.mode==='moveSel'){
   const O=drag.orig,ds=Math.round((step-drag.ax)/S.snap)*S.snap,dp=(HI-Math.floor(y/RH))-drag.ap;
@@ -585,6 +718,7 @@ window.addEventListener('mouseup',()=>{
   }
   drawRoll();return;
  }
+ if(drag.mode==='end'){drag=null;renderRack();renderPlaylist();drawRoll();return}
  if(drag.mode==='newsz'||drag.mode==='size'||drag.mode==='sizeL')S.lastLen=drag.n.d;
  drag=null;flushGrow();drawRoll();drawMinis();renderRackSteps();
 });
@@ -773,8 +907,8 @@ $('#rAddPl').onclick=()=>{
 function saveProject(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({S,nextId})],{type:'application/json'}));a.download='forge-studio-project.json';a.click()}
 $('#fLoad').onchange=async e=>{
  const f=e.target.files[0];if(!f)return;
- try{const o=JSON.parse(await f.text());stopPlay();S=o.S;nextId=o.nextId;undoS=[];redoS=[];
-  if(ctx){for(const id in chN){try{chN[id].p.disconnect()}catch(x){}}chN={};S.tracks.forEach((_,i)=>applyTrack(i));master.gain.value=S.master}
+ try{const o=JSON.parse(await f.text());stopPlay();S=o.S;S.userFx=S.userFx||[];nextId=o.nextId;undoS=[];redoS=[];
+  if(ctx){dropChN();S.tracks.forEach((_,i)=>applyTrack(i));master.gain.value=S.master}
   initAudio();S.channels.forEach(c=>{if(c.type==='sf')loadSF(c.inst)});renderAll();toast('Project loaded.')}
  catch(err){toast('Could not read that project file.')}
  e.target.value='';
@@ -833,7 +967,7 @@ function frame(){
  if(r){r.style.display=(l!=null&&l<1024)?'block':'none';if(l!=null)r.style.left=(RX0+l*24)+'px'}
  if(l!=null){const px=56+l*SW,rs=$('#rollScroll');phP.style.left=px+'px';phP.style.display=px>=rs.scrollLeft+56?'block':'none';if(playing&&!drag&&performance.now()-lastUS>2500&&(px>rs.scrollLeft+rs.clientWidth-20||px<rs.scrollLeft+56))rs.scrollLeft=Math.max(0,px-120)}else phP.style.display='none';
  if(ph!=null){phL.style.display='block';phL.style.left=(LM+ph/16*BW)+'px'}else phL.style.display='none';
- if($('#mixP').classList.contains('on'))updMixBar();
+ drawRuler();if($('#mixP').classList.contains('on'))updMixBar();
  if(ctx&&$('#mixP').classList.contains('on')){
   const f=document.querySelectorAll('#mix .fill');
   S.tracks.forEach((_,i)=>{if(f[i])f[i].style.height=level(trk[i].an)+'%'});
@@ -901,6 +1035,8 @@ const HELP={
 <li>The pattern grows automatically when notes go past its end, and you can scroll right as far as you like.</li>
 <li>The dropdown next to the channel name swaps that channel's instrument. <b>Clear notes</b> empties the channel in this pattern.</li>
 <li><b>+ Add to playlist</b> puts the current pattern on this channel's Playlist track in the first free spot.</li>
+<li><b>Pattern end:</b> drag the orange END tab (or the orange line) left or right to shorten or lengthen the pattern, one bar at a time.</li>
+<li><b>Start position:</b> click or drag along the bar ruler above the grid to choose where playback begins; press Play to start from the green marker. Dragging while playing jumps there live.</li>
 <li><b>Maximize</b> enlarges the piano roll (<kbd>Esc</kbd> restores it).</li></ul>`,
 'Playlist':`<h3>Playlist</h3><ul>
 <li>Every track is a channel from the Channel Rack. A block on a track plays only that channel's notes from the pattern.</li>
@@ -920,6 +1056,15 @@ const HELP={
 <li>The green light mutes a channel, <b>S</b> solos it, <b>✕</b> deletes it. The two sliders are volume and pan.</li>
 <li>Drum channels show step buttons: click or drag across them to paint steps on and off.</li>
 <li>Other channels show a small preview of their notes. Click it to open the piano roll.</li></ul>`};
+HELP['Effects']=`<h3>Effects (FX tab)</h3><ul>
+<li>Click <b>FX</b> next to the piano roll title to open the effects library; <b>Piano Roll</b> or <b>← Piano Roll</b> takes you back.</li>
+<li>Click a preset to load it. <b>Apply presets to</b> chooses all channels or only the selected one. <kbd>Ctrl</kbd>+<kbd>Z</kbd> undoes it.</li>
+<li><b>Acoustic</b> is the raw sound with no effects. Loading it on all channels also switches on <b>Raw mix</b>, which bypasses the mixer reverb sends.</li>
+<li><b>Cinematic</b> and its variants add big reverb, echo, chorus and EQ for a film-score feel.</li>
+<li>The <b>Effect adjustments</b> panel edits the selected channel: Reverb + room size, Echo, Chorus, Tremolo, Bass/Treble, High/Low-pass, Drive and Output level. Double-click a slider's name to reset it.</li>
+<li><b>Bypass</b> compares with/without effects, <b>Reset</b> returns the channel to Acoustic, <b>Copy to all</b> copies its settings everywhere, <b>Save preset</b> adds your own to <i>My Presets</i>.</li>
+<li><b>Audition</b> plays a short test phrase, or press keyboard notes (Z–M) while tweaking.</li>
+<li>Effects belong to channels and are saved with the project.</li></ul>`;
 function showHelp(c){document.querySelectorAll('#helpCats button').forEach(b=>b.classList.toggle('on',b.dataset.c===c));$('#helpTxt').innerHTML=HELP[c];$('#helpTxt').scrollTop=0}
 function openHelp(c){$('#helpM').classList.add('on');showHelp(c||'General')}
 function closeHelp(){$('#helpM').classList.remove('on')}
@@ -927,7 +1072,189 @@ $('#helpCats').innerHTML=Object.keys(HELP).map(c=>'<button data-c="'+c+'">'+c+'<
 $('#helpCats').addEventListener('click',e=>{const b=e.target.closest('button');if(b)showHelp(b.dataset.c)});
 $('#mHelp').onclick=()=>openHelp();$('#helpX').onclick=closeHelp;
 $('#helpM').addEventListener('mousedown',e=>{if(e.target.id==='helpM')closeHelp()});
+/* ---------- FX tab UI ---------- */
+const FXCATS=[['Natural','#81c784'],['Cinematic','#ff9a1f'],['Spacey','#b388ff'],['Tone & Color','#4fc3f7'],['Grit & Motion','#ef5350'],['My Presets','#ffd54f']];
+const allPre=()=>FXPRE.concat(S.userFx||[]);
+let fxScope='all';
+function fxOn(){return $('#roll').classList.contains('fxon')}
+function ensureFx(ch){if(!ch.fx)ch.fx={preset:'Acoustic',p:Object.assign({},FXDEF),off:false,mod:false};return ch.fx}
+function fxChips(p){const q=Object.assign({},FXDEF,p),o=[];
+ if(q.rev>.01)o.push('Reverb');if(q.eMix>.01)o.push('Echo');if(q.cho>.01)o.push('Chorus');if(q.trem>.01)o.push('Tremolo');if(q.drv>.01)o.push('Drive');
+ if(q.lp<19000||q.hp>25)o.push('Filter');if(Math.abs(q.lo)>.1||Math.abs(q.hi)>.1)o.push('EQ');
+ return o.length?o.join(' · '):'No effects'}
+function fxStatus(ch){const f=ch.fx;$('#fxSt').textContent=ch.name+' · '+(f?f.preset+(f.mod?' (modified)':''):'Acoustic')+(f&&f.off?' · bypassed':'');
+ $('#fxByp').classList.toggle('on',!!(f&&f.off));$('#fxByp').textContent=f&&f.off?'Bypassed':'Bypass'}
+function renderFx(){
+ const ch=S.channels[S.sel],cur=ch&&ch.fx?ch.fx.preset:'Acoustic',pre=allPre();let h='';
+ for(const[cat,col]of FXCATS){
+  const items=pre.map((p,i)=>[p,i]).filter(a=>a[0].c===cat);if(!items.length)continue;
+  h+=`<h5>${cat}</h5><div class="fxg">`+items.map(([p,i])=>`<div class="fxc ${p.n===cur?'on':''}" data-i="${i}" style="--fc:${col}"><b>${esc(p.n)}</b><span>${esc(p.d||'')}</span><u>${fxChips(p.p)}</u>${cat==='My Presets'?`<i class="x" data-del="${i}" title="Delete preset">✕</i>`:''}</div>`).join('')+'</div>';
+ }
+ $('#fxLib').innerHTML=h;$('#fxRaw').classList.toggle('on',!!S.dryMix);$('#fxScope').value=fxScope;
+ if(!ch){$('#fxSt').textContent='No channel selected';$('#fxAdj').innerHTML='';return}
+ const P=Object.assign({},FXDEF,ch.fx&&ch.fx.p);fxStatus(ch);let a='';
+ for(const g of['Space','Echo','Modulation','Tone','Grit','Output']){a+=`<h6>${g}</h6>`;
+  FXP.filter(d=>d.g===g).forEach(d=>{a+=`<div class="fxr"><div class="fxn" data-r="${d.k}" title="Double-click to reset">${d.n}</div><input type="range" data-k="${d.k}" min="0" max="1000" step="1" value="${toSl(d,P[d.k])}"><span class="fxv">${d.f(P[d.k])}</span></div>`})}
+ $('#fxAdj').innerHTML=a;
+}
+function showFx(on){
+ $('#roll').classList.toggle('fxon',on);$('#tFx').classList.toggle('on',on);$('#tRoll').classList.toggle('on',!on);
+ $('#rollTools').style.display=on?'none':'contents';
+ if(on)renderFx();else requestAnimationFrame(()=>{sizeRoll();drawKeys();drawRoll()});
+}
+function setDry(v){S.dryMix=v;S.tracks.forEach((_,i)=>applyTrack(i));$('#fxRaw').classList.toggle('on',v)}
+function auditionFx(){
+ const ch=S.channels[S.sel];if(!ch)return;initAudio();ctx.resume();
+ if(ch.type==='sf'){const r=sfBufs[S.bank+'/'+ch.inst];if(r&&r.state==='load'){toast('"'+ch.name+'" samples are still loading…');return}}
+ const b=ch.cat==='Bass'?36:60,t=ctx.currentTime+.03;
+ if(ch.type==='drum')[0,.3,.6].forEach(o=>playNote(ch,60,t+o,.2,S.vel));
+ else[[0,0],[.28,4],[.56,7],[.84,12]].forEach(([o,s])=>playNote(ch,b+s,t+o,.7,S.vel));
+}
+function applyPreset(i){
+ const pr=allPre()[i];if(!pr||!S.channels.length)return;
+ const all=fxScope==='all',T=all?S.channels:[S.channels[S.sel]];pushUndo();
+ T.forEach(ch=>{ch.fx={preset:pr.n,p:Object.assign({},FXDEF,pr.p),off:false,mod:false}});
+ if(all)setDry(!!pr.raw);
+ renderFx();
+ toast(pr.n+' applied to '+(all?'all channels':S.channels[S.sel].name)+(all&&pr.raw?' (mixer reverb sends bypassed)':'')+'.');
+ if(!playing)auditionFx();
+}
+$('#fxLib').addEventListener('click',e=>{
+ const del=e.target.closest('[data-del]');
+ if(del){const i=+del.dataset.del-FXPRE.length;if(i>=0){S.userFx.splice(i,1);renderFx()}return}
+ const c=e.target.closest('.fxc');if(c)applyPreset(+c.dataset.i);
+});
+$('#fxAdj').addEventListener('pointerdown',e=>{if(e.target.dataset.k)pushUndo()});
+$('#fxAdj').addEventListener('input',e=>{
+ const k=e.target.dataset.k;if(!k)return;const ch=S.channels[S.sel];if(!ch)return;
+ const d=FXD[k],f=ensureFx(ch),v=fromSl(d,+e.target.value);f.p[k]=v;f.mod=true;f.off=false;
+ e.target.parentNode.querySelector('.fxv').textContent=d.f(v);fxStatus(ch);
+});
+$('#fxAdj').addEventListener('dblclick',e=>{
+ const k=e.target.dataset.r;if(!k)return;const ch=S.channels[S.sel];if(!ch)return;
+ pushUndo();const f=ensureFx(ch);f.p[k]=FXD[k].def;f.mod=true;renderFx();
+});
+$('#fxByp').onclick=()=>{const ch=S.channels[S.sel];if(!ch)return;pushUndo();const f=ensureFx(ch);f.off=!f.off;renderFx()};
+$('#fxRst').onclick=()=>{const ch=S.channels[S.sel];if(!ch)return;pushUndo();ch.fx={preset:'Acoustic',p:Object.assign({},FXDEF),off:false,mod:false};renderFx();toast(ch.name+' reset to Acoustic.')};
+$('#fxCopy').onclick=()=>{const ch=S.channels[S.sel];if(!ch)return;pushUndo();const src=JSON.stringify(ensureFx(ch));S.channels.forEach(o=>{o.fx=JSON.parse(src)});renderFx();toast('Copied '+ch.name+"'s effects to all channels.")};
+$('#fxSave').onclick=()=>{
+ const ch=S.channels[S.sel];if(!ch)return;let nm=(prompt('Name for your preset:',ch.name+' FX')||'').trim().slice(0,28);if(!nm)return;
+ if(FXPRE.some(p=>p.n===nm))nm+=' (mine)';
+ const f=ensureFx(ch);S.userFx=(S.userFx||[]).filter(p=>p.n!==nm);S.userFx.push({n:nm,c:'My Presets',d:'Saved from '+ch.name+'.',p:Object.assign({},f.p)});
+ f.preset=nm;f.mod=false;renderFx();toast('Saved preset "'+nm+'" under My Presets.');
+};
+$('#fxAud').onclick=auditionFx;
+$('#fxRaw').onclick=()=>{setDry(!S.dryMix);toast(S.dryMix?'Raw mix on – mixer reverb sends bypassed.':'Raw mix off – mixer reverb sends restored.')};
+$('#fxScope').onchange=e=>{fxScope=e.target.value};
+$('#tFx').onclick=()=>showFx(true);$('#tRoll').onclick=()=>showFx(false);$('#fxBack').onclick=()=>showFx(false);
+/* ---------- piano-roll ruler: choose where playback starts + end-of-pattern helper ---------- */
+const ruler=$('#ruler'),rcx=ruler.getContext('2d');let rulerDrag=false;
+function onEndHandle(x,y,n){
+ const endX=cp().bars*16*SW,sy=$('#rollScroll').scrollTop;
+ return(!n&&Math.abs(x-endX)<=6)||(y>=sy&&y<=sy+14&&x>=endX-34&&x<=endX+8);
+}
+function seekStep(st){
+ const L=loopLen();st=Math.max(0,Math.min(L-1,Math.floor(st)));startStep=st;
+ if(playing&&ctx){clearTimeout(endTO);curStep=st;nextTime=ctx.currentTime+.05;visQ=[];panic();clearInterval(timer);timer=setInterval(sched,25);sched()}
+}
+function rulerSeek(e,first){
+ const rs=$('#rollScroll'),r=ruler.getBoundingClientRect(),p=cp();
+ let loc=Math.max(0,(e.clientX-r.left-56+rs.scrollLeft)/SW);loc=Math.min(p.bars*16-1,Math.floor(loc));
+ if(S.mode==='pat'){seekStep(loc);return}
+ const c=S.playlist.find(c=>c.pat===S.cur);
+ if(!c){if(first)toast("This pattern isn't placed in the Playlist – switch to PAT mode or add it first.");return}
+ seekStep(c.bar*16+loc);
+}
+function localStart(){
+ if(S.mode==='pat')return startStep;
+ const p=cp();for(const c of S.playlist){if(c.pat!==S.cur)continue;const l=startStep-c.bar*16;if(l>=0&&l<p.bars*16)return l}return null;
+}
+function drawRuler(){
+ const rs=$('#rollScroll'),cw=ruler.parentNode.clientWidth;if(!cw)return;
+ if(ruler.width!==cw)ruler.width=cw;
+ const H=20,ox=rs.scrollLeft,p=cp(),W=p.bars*16;
+ rcx.setTransform(1,0,0,1,0,0);rcx.clearRect(0,0,cw,H);rcx.fillStyle=TC.p0;rcx.fillRect(0,0,cw,H);
+ rcx.fillStyle=TC.dim;rcx.font='9px sans-serif';rcx.fillText('START',10,13);
+ rcx.save();rcx.beginPath();rcx.rect(56,0,cw-56,H);rcx.clip();rcx.translate(56-ox,0);
+ rcx.fillStyle='rgba(0,0,0,.3)';rcx.fillRect(W*SW,0,1e6,H);
+ rcx.font='10px sans-serif';
+ for(let s=Math.floor(ox/SW);s<=Math.ceil((ox+cw)/SW);s++){
+  if(s%16===0){rcx.fillStyle=TC.gBar;rcx.fillRect(s*SW,0,1,H);rcx.fillStyle=TC.ac;rcx.fillText(s/16+1,s*SW+4,12)}
+  else if(s%4===0){rcx.fillStyle=TC.gBeat;rcx.fillRect(s*SW,H-6,1,6)}
+ }
+ rcx.fillStyle=TC.ac;rcx.fillRect(W*SW-1,0,2,H);
+ const l=localStart();
+ if(l!=null&&l<W){const x=l*SW;rcx.fillStyle='#5fd068';rcx.fillRect(x,0,2,H);rcx.beginPath();rcx.moveTo(x,0);rcx.lineTo(x+11,0);rcx.lineTo(x,10);rcx.closePath();rcx.fill()}
+ const lp=localPh();
+ if(lp!=null){rcx.fillStyle=TC.tx;rcx.fillRect(lp*SW,0,2,H)}
+ rcx.restore();
+}
+ruler.addEventListener('mousedown',e=>{if(e.button!==0)return;initAudio();rulerDrag=true;rulerSeek(e,true)});
+window.addEventListener('mousemove',e=>{if(rulerDrag)rulerSeek(e,false)});
+window.addEventListener('mouseup',()=>{rulerDrag=false});
 /* boot */
 computeTheme(themeName);initAudio();defaultProject();renderAll();frame();
 
+/* ================= NOTE FX (instrument-based, per note) ================= */
+function artBend(p,b,t,dur){if(!NB||NB.m==='off')return;const a=Math.pow(2,NB.a/12),m=NB.m;dur=Math.max(.06,dur);const T=Math.min(NB.T,dur*.9);
+ if(m==='rise'||m==='scoop'){p.setValueAtTime(m==='rise'?b/a:b*a,t);p.exponentialRampToValueAtTime(b,t+T)}
+ else{p.setValueAtTime(b,t+dur-T);p.exponentialRampToValueAtTime(m==='dive'?b/a:b*a,t+dur)}}
+function nfxVib(p,t,dur){if(!NB||!(NB.vd>0))return;
+ if(!NB.vg){const o=ctx.createOscillator(),g=ctx.createGain(),d=Math.min(1.2,dur*NB.vdl);o.frequency.value=NB.vr;g.gain.setValueAtTime(0,t);g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(NB.vd,t+d+.3);o.connect(g);o.start(t);o.stop(t+dur+.3);NB.vg=g}
+ NB.vg.connect(p)}
+const nfxActive=f=>f.fi>0||f.fo>0||f.vd>0||f.td>0||f.bend!=='off'||f.la!==1;
+function nfxChain(f,t,dur,out){const I=ctx.createGain(),F=ctx.createGain(),Q=ctx.createGain(),L=bq('lowpass',nfxCut(f.la),.7);
+ I.connect(F);F.connect(Q);Q.connect(L);L.connect(out);const e=t+Math.max(.05,dur);
+ F.gain.setValueAtTime(f.fi>0?.0001:1,t);if(f.fi>0)F.gain.linearRampToValueAtTime(1,t+dur*f.fi);
+ if(f.fo>0){F.gain.setValueAtTime(1,t+dur*Math.max(1-f.fo,f.fi));F.gain.linearRampToValueAtTime(.0001,e)}
+ if(f.td>0){const o=ctx.createOscillator(),g=ctx.createGain();Q.gain.value=1-f.td/2;g.gain.value=f.td/2;o.frequency.value=f.tr;o.connect(g);g.connect(Q.gain);o.start(t);o.stop(e+3)}
+ return I}
+function playNote(ch,m,t,dur,vel,fx){const n=chNode(ch);let D=n.g;
+ if(fx&&nfxActive(fx)){D=nfxChain(fx,t,dur,n.g);if(ch.type!=='drum')NB={m:fx.bend,a:fx.ba,T:fx.bt,vd:fx.vd,vr:fx.vr,vdl:fx.vdl}}
+ try{return playNote0(ch,m,t,dur,vel,D)}finally{NB=null}}
+/* instrument profiles: presets adapt to the sound being played */
+function nfxProf(ch){const c=ch.cat,i=ch.inst||'';
+ if(ch.type==='drum')return{k:'Drums',vr:5,vd:0,tr:6,tip:'drums only use fades, tremolo and tone.'};
+ if(ch.cat==='Organs')return{k:'Organ',vr:6.5,vd:12,tr:6.5,tip:'organs hold constant volume – a Leslie-style tremolo or light vibrato and fades sound most natural.'};
+ if(/kalimba|koto|sitar|banjo|shamisen|steel_drums|tubular|pizz|harp|guitar|piano|harpsichord|clavinet|celesta|music_box|vibraphone|marimba|xylophone|glock|bells|pluck/.test(i)||c==='Pianos')return{k:'Struck/plucked',vr:5,vd:10,tr:5.5,tip:'these can\'t hold vibrato in real life, so it stays subtle – fades, tremolo and falls sound most natural.'};
+ if(c==='Strings')return{k:'Strings',vr:5.8,vd:28,tr:8,tip:'bowed strings suit vibrato that starts after the note begins.'};
+ if(/choir|voice|pad_4/.test(i))return{k:'Voice',vr:5.2,vd:24,tr:4,tip:'voices breathe in with a late, gentle vibrato.'};
+ if(c==='Keys & Winds'||c==='Winds & Brass')return{k:'Winds/Brass',vr:5.2,vd:26,tr:5.5,tip:'wind and brass players swell and add vibrato on long notes.'};
+ if(c==='Pads')return{k:'Pads',vr:4,vd:14,tr:3,tip:'pads like slow, soft movement.'};
+ if(c==='Bass')return{k:'Bass',vr:4.5,vd:12,tr:5,tip:'keep bass movement slow and shallow.'};
+ return{k:'Lead',vr:5.5,vd:22,tr:6,tip:'leads sound human with late vibrato and slides.'}}
+const NS=[['Fade','fi','Fade in','Volume grows from silence over the note',0,1,.01,fmtP],['Fade','fo','Fade out','Volume dies away before the note ends',0,1,.01,fmtP],
+ ['Vibrato','vd','Vibrato depth','How far the pitch wavers (cents)',0,100,1,v=>Math.round(v)+' ct'],['Vibrato','vr','Vibrato speed','',2,9,.1,fmtR],['Vibrato','vdl','Starts after','Real players start vibrato late',0,1,.01,fmtP],
+ ['Tremolo','td','Tremolo depth','Volume wavering',0,1,.01,fmtP],['Tremolo','tr','Tremolo speed','',.5,12,.1,fmtR],
+ ['Pitch slide','ba','Slide size','Semitones',.1,4,.1,v=>v.toFixed(1)+' st'],['Pitch slide','bt','Slide time','',.03,1,.01,v=>Math.round(v*1000)+' ms'],
+ ['Tone','la','Warmth','Softer ← natural',0,1,.01,v=>v>=.99?'Natural':Math.round(nfxCut(v))+' Hz']];
+const NPRE=[['Fade In',P=>({fi:.8})],['Fade Out',P=>({fo:.8})],['Swell (crescendo)',P=>({fi:.7,fo:.25})],['Fade In + Out',P=>({fi:.5,fo:.5})],
+ ['Vibrato',P=>({vd:P.vd,vr:P.vr,vdl:.35})],['Singing Vibrato',P=>({vd:P.vd*1.3,vr:P.vr-1.2,vdl:.5,fi:.2})],['Tremolo',P=>({td:.45,tr:P.tr})],['Soft Tremolo',P=>({td:.2,tr:P.tr-2})],
+ ['Slide Up Into Note',P=>({bend:'rise',ba:1,bt:.12})],['Fall Off',P=>({bend:'dive',ba:2,bt:.25})],['Sigh',P=>({fo:.6,bend:'dive',ba:1,bt:.4,la:.8})],['Warm',P=>({la:.55})]];
+const nOpt=(a,c)=>a.map(([v,l])=>`<option value="${v}" ${String(v)===String(c)?'selected':''}>${l}</option>`).join('');
+const nTargets=()=>{const ch=S.channels[S.sel];if(!ch)return[];const s=selList();if(s.length)return s;return NFXN&&nts(cp(),ch).includes(NFXN)?[NFXN]:[]};
+function nfxBuild(){let h='',g='';
+ for(const d of NS){if(d[0]!==g){g=d[0];h+=`<div class="ng"><h6>${g}</h6>`;
+   if(g==='Pitch slide')h+=`<div class="nr"><span>Style</span><select data-s="bend">${nOpt([['off','Off'],['rise','Slide up into note'],['scoop','Slide down into note'],['dive','Fall off at end'],['lift','Lift at end']])}</select><i></i></div>`}
+  h+=`<div class="nr" title="${d[3]}"><span>${d[2]}</span><input type="range" data-k="${d[1]}" min="${d[4]}" max="${d[5]}" step="${d[6]}"><i class="nv"></i></div>`;
+  const nx=NS[NS.indexOf(d)+1];if(!nx||nx[0]!==g)h+='</div>'}
+ $('#nfxG').innerHTML=h;$('#nfxPre').innerHTML=NPRE.map((p,i)=>`<button class="b" data-p="${i}">${p[0]}</button>`).join('')}
+let nfxLast=null,nfxCnt=-1,nfxCh=-1;
+function nfxSync(force){const T=nTargets(),ch=S.channels[S.sel],f=T[0]&&T[0].fx||NFD;if(!force&&T[0]===nfxLast&&T.length===nfxCnt&&(ch&&ch.id)===nfxCh)return;nfxLast=T[0];nfxCnt=T.length;nfxCh=ch&&ch.id;
+ const P=ch?nfxProf(ch):null;
+ $('#nfxSt').textContent=(ch?ch.name+' ('+P.k+') – '+P.tip+'  ':'')+(T.length?'· '+T.length+' note'+(T.length>1?'s':'')+' selected':'· Click a note to edit its effects');$('#nfx').classList.toggle('none',!T.length);
+ document.querySelectorAll('#nfxG input').forEach(i=>{const d=NS.find(x=>x[1]===i.dataset.k);i.value=f[d[1]];i.parentNode.querySelector('.nv').textContent=d[7](+f[d[1]])});
+ document.querySelectorAll('#nfxG select').forEach(s=>s.value=f[s.dataset.s])}
+function nfxSet(fn){nTargets().forEach(n=>{n.fx=Object.assign({},NFD,n.fx);fn(n.fx)});drawRoll()}
+function nfxHear(){const ch=S.channels[S.sel],n=nTargets()[0];if(!ch||!n)return;initAudio();ctx.resume();playNote(ch,n.n,ctx.currentTime+.03,Math.max(.8,n.d*stepDur()),n.v,n.fx)}
+$('#nfxG').addEventListener('pointerdown',e=>{if(e.target.dataset.k)pushUndo()});
+$('#nfxG').addEventListener('input',e=>{const k=e.target.dataset.k;if(!k)return;const d=NS.find(x=>x[1]===k),v=+e.target.value;nfxSet(f=>f[k]=v);e.target.parentNode.querySelector('.nv').textContent=d[7](v)});
+$('#nfxG').addEventListener('change',e=>{if(!(e.target.dataset.k||e.target.dataset.s))return;
+ if(e.target.dataset.s){pushUndo();const k=e.target.dataset.s,v=e.target.value;nfxSet(f=>f[k]=v)}nfxHear()});
+$('#nfxPre').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b||!nTargets().length){toast('Click a note first, then pick an effect.');return}
+ pushUndo();const P=nfxProf(S.channels[S.sel]),p=NPRE[+b.dataset.p][1](P);nfxSet(f=>{Object.assign(f,NFD,p)});nfxSync(true);nfxHear()});
+$('#nfxClr').onclick=()=>{const T=nTargets();if(!T.length)return;pushUndo();T.forEach(n=>delete n.fx);drawRoll();nfxSync(true)};
+$('#nfxHear').onclick=nfxHear;
+$('#tFx').onclick=()=>{const on=!$('#roll').classList.contains('nfxon');$('#roll').classList.toggle('nfxon',on);$('#tFx').classList.toggle('on',on);nfxSync(true);requestAnimationFrame(()=>{sizeRoll();drawKeys();drawRoll()})};
+nfxBuild();nfxSync(true);setInterval(()=>nfxSync(),250);
 </script></body></html>
