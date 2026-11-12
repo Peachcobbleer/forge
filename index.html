@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Forge Studio – Web DAW</title>
+<html lang="en"><head><meta charset="utf-8"><title>Forge Studio</title>
 <link rel="icon" type="image/png" href="favicon.png">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
@@ -181,7 +181,7 @@ select,input[type=text],input[type=number]{border-color:var(--bd);border-radius:
 <section id="roll">
  <div id="rollBar">
   <button class="b" id="rMax" title="Maximize / restore piano roll (Esc to restore)">⤢ Maximize</button><button class="b" id="rPlay" title="Play / pause (Space)">▶</button>
-  <b id="rName"></b><select id="rInst"></select>
+  <b id="rName"></b><select id="rInst"></select><button class="b" id="rSus" title="Sustain pedal for this channel only: notes ring out and fade slowly after they end">Sustain</button>
   <button class="b" id="rEdit" style="display:none" title="Open this sample in the Tools tab to trim / cut it and change its pitch">✂ Edit sample</button><span class="grp" id="rTabs"><button class="b on" id="tRoll">Piano Roll</button><button class="b" id="tFx" title="Effects library &amp; adjustments">FX</button></span>
   <span id="rollTools" style="display:contents">
   <label>Snap <select id="rSnap"><option value=".5">1/32</option><option value="1" selected>1/16</option><option value="2">1/8</option><option value="4">1/4</option><option value="16">Bar</option></select></label>
@@ -225,11 +225,13 @@ const CAT={
 'Pads':[['Warm Pad','sf','pad_2_warm'],['New Age Pad','sf','pad_1_new_age'],['Polysynth Pad','sf','pad_3_polysynth'],['Choir Pad','sf','pad_4_choir'],['Bowed Pad','sf','pad_5_bowed'],['Halo Pad','sf','pad_7_halo'],['Sweep Pad','sf','pad_8_sweep'],['Choir Aahs','sf','choir_aahs'],['Warm Pad (built-in)','syn','pad']],
 'Synths':[['Square Lead','sf','lead_1_square'],['Saw Lead','sf','lead_2_sawtooth'],['Calliope Lead','sf','lead_3_calliope'],['Charang Lead','sf','lead_5_charang'],['Supersaw (built-in)','syn','supersaw'],['Pluck (built-in)','syn','pluck']],
 'Pianos':[['Grand Piano','sf','acoustic_grand_piano'],['Bright Piano','sf','bright_acoustic_piano'],['Electric Grand','sf','electric_grand_piano'],['Honky-Tonk Piano','sf','honkytonk_piano'],['Rhodes E-Piano','sf','electric_piano_1'],['FM E-Piano','sf','electric_piano_2'],['Harpsichord','sf','harpsichord'],['Clavinet','sf','clavinet'],['Celesta','sf','celesta'],['Music Box','sf','music_box'],['Vibraphone','sf','vibraphone']],
-'Keys & Winds':[['Nylon Guitar','sf','acoustic_guitar_nylon'],['Flute','sf','flute'],['Trumpet','sf','trumpet'],['French Horn','sf','french_horn']],
+'Organs':[['Drawbar Organ','sf','drawbar_organ'],['Percussive Organ','sf','percussive_organ'],['Rock Organ','sf','rock_organ'],['Church Organ','sf','church_organ'],['Reed Organ','sf','reed_organ'],['Accordion','sf','accordion'],['Tango Accordion','sf','tango_accordion'],['Harmonica','sf','harmonica']],
+'Guitars':[['Nylon Guitar','sf','acoustic_guitar_nylon'],['Steel Guitar','sf','acoustic_guitar_steel'],['Jazz Guitar','sf','electric_guitar_jazz'],['Clean Electric Guitar','sf','electric_guitar_clean'],['Muted Guitar','sf','electric_guitar_muted'],['Overdriven Guitar','sf','overdriven_guitar'],['Distortion Guitar','sf','distortion_guitar'],['Guitar Harmonics','sf','guitar_harmonics']],
+'Keys & Winds':[['Flute','sf','flute'],['Trumpet','sf','trumpet'],['French Horn','sf','french_horn']],
 'Drums':[['Kick','drum','kick'],['Snare','drum','snare'],['Clap','drum','clap'],['Closed Hat','drum','hat'],['Open Hat','drum','ohat'],['Tom','drum','tom'],['Rim','drum','rim'],['Crash','drum','crash'],['Cowbell','drum','cow']]};
-const CATCOL={'Samples':'#26c6da','Strings':'#ff7a59','Bass':'#4fc3f7','Pads':'#b388ff','Synths':'#ffd54f','Pianos':'#64b5f6','Keys & Winds':'#81c784','Drums':'#ef5350'};
-const DEFTRK={'Samples':4,'Drums':0,'Bass':1,'Strings':2,'Pads':3,'Synths':4,'Pianos':4,'Keys & Winds':4};
-const FALLBACK={'Strings':'strfb','Bass':'sub','Pads':'pad','Synths':'pluck','Pianos':'pluck','Keys & Winds':'pluck'};
+const CATCOL={'Samples':'#26c6da','Strings':'#ff7a59','Bass':'#4fc3f7','Pads':'#b388ff','Synths':'#ffd54f','Pianos':'#64b5f6','Keys & Winds':'#81c784','Organs':'#f06292','Guitars':'#ffb74d','Drums':'#ef5350'};
+const DEFTRK={'Samples':4,'Drums':0,'Bass':1,'Strings':2,'Pads':3,'Synths':4,'Pianos':4,'Keys & Winds':4,'Organs':3,'Guitars':4};
+const FALLBACK={'Strings':'strfb','Bass':'sub','Pads':'pad','Synths':'pluck','Pianos':'pluck','Keys & Winds':'pluck','Organs':'pad','Guitars':'pluck'};
 const PATCOL=['#5fb3d0','#d08a5f','#8fd05f','#c75fd0','#d0c85f','#5fd0a8'];
 /* ---------- state ---------- */
 let S={bpm:100,mode:'pat',cur:0,sel:0,bank:'FluidR3_GM',master:1,snap:1,vel:.8,lastLen:2,oct:60,rec:false,met:false,loop:true,
@@ -373,7 +375,7 @@ function loadSF(inst){
  return rec;
 }
 const chState=ch=>{if(ch.type==='smp')return smpBufs[ch.inst]?'ok':'err';if(ch.type!=='sf')return'ok';const r=sfBufs[S.bank+'/'+ch.inst];return r?r.state:'load'};
-function relOf(ch){if(ch.cat==='Pads')return .9;if(ch.cat==='Bass')return .12;if(/pizz|harp|guitar/.test(ch.inst))return .15;if(/piano/.test(ch.inst))return .5;if(/harpsichord|clavinet|music_box|celesta/.test(ch.inst))return .2;if(/vibraphone/.test(ch.inst))return .6;if(ch.cat==='Strings')return .35;return .3}
+function relOf(ch){if(ch.cat==='Pads')return .9;if(ch.cat==='Organs')return .12;if(ch.cat==='Bass')return .12;if(/pizz|harp|guitar/.test(ch.inst))return .15;if(/piano/.test(ch.inst))return .5;if(/harpsichord|clavinet|music_box|celesta/.test(ch.inst))return .2;if(/vibraphone/.test(ch.inst))return .6;if(ch.cat==='Strings')return .35;return .3}
 function sfPlay(rec,m,t,dur,vel,dest,rel){
  let base=m,buf=rec.bufs[m];
  for(let k=1;k<12&&!buf;k++){if(rec.bufs[m-k]){buf=rec.bufs[m-k];base=m-k}else if(rec.bufs[m+k]){buf=rec.bufs[m+k];base=m+k}}
@@ -412,8 +414,8 @@ const PRE={
  pad:{o:[['sawtooth',-9],['sawtooth',9],['triangle',0],['sawtooth',-1195]],cut:1500,q:.8,a:.7,d:.5,s:.8,r:1.3,pk:.11},
  pluck:{o:[['sawtooth',-5],['sawtooth',5]],cut:4000,q:2,a:.002,d:.25,s:0,r:.1,pk:.3,fenv:450},
  strfb:{o:[['sawtooth',-6],['sawtooth',6],['sawtooth',0]],cut:2800,q:.7,a:.12,d:.3,s:.8,r:.35,pk:.14,vib:1}};
-function synthNote(name,m,t,dur,vel,dest){
- const p=PRE[name]||PRE.supersaw,f=440*Math.pow(2,(m-69)/12);vel=vel*1.6;
+function synthNote(name,m,t,dur,vel,dest,sus){
+ const p0=PRE[name]||PRE.supersaw,p=sus?Object.assign({},p0,{r:Math.max(p0.r*4,2)}):p0,f=440*Math.pow(2,(m-69)/12);vel=vel*1.6;
  const flt=ctx.createBiquadFilter();flt.type='lowpass';flt.Q.value=p.q;flt.frequency.setValueAtTime(p.fenv?p.cut:p.cut,t);
  if(p.fenv)flt.frequency.exponentialRampToValueAtTime(p.fenv,t+.25);
  const g=ctx.createGain();flt.connect(g);g.connect(dest);
@@ -484,11 +486,11 @@ function playNote0(ch,m,t,dur,vel,off,dest){
  }
  if(ch.type==='sf'){
   const r=sfBufs[S.bank+'/'+ch.inst];
-  if(r&&r.state==='ok')return sfPlay(r,m,t,dur,vel,n.g,relOf(ch));
-  if(r&&r.state==='err')return synthNote(FALLBACK[ch.cat]||'pluck',m,t,dur,vel,n.g);
+  if(r&&r.state==='ok')return sfPlay(r,m,t,dur,vel,n.g,ch.sus?Math.max(relOf(ch)*4,2):relOf(ch));
+  if(r&&r.state==='err')return synthNote(FALLBACK[ch.cat]||'pluck',m,t,dur,vel,n.g,ch.sus);
   return;
  }
- synthNote(ch.inst,m,t,dur,vel,n.g);
+ synthNote(ch.inst,m,t,dur,vel,n.g,ch.sus);
 }
 function preview(ch,m,len,nt){initAudio();ctx.resume();
  if(ch.type==='sf'){const r=sfBufs[S.bank+'/'+ch.inst];if(r&&r.state==='load'){toast('"'+ch.name+'" samples are still loading…');return}}
@@ -913,6 +915,7 @@ function sizeRoll(){
 function renderRoll(center){if(fxOn())renderFx();
  const ch=S.channels[S.sel],rs=$('#rollScroll');
  $('#rName').textContent=ch?ch.name:'(no channel)';$('#rEdit').style.display=ch&&ch.type==='smp'?'':'none';
+ const sb=$('#rSus');sb.style.display=ch&&ch.type!=='drum'&&ch.type!=='dsm'&&ch.type!=='smp'?'':'none';sb.classList.toggle('on',!!(ch&&ch.sus));
  const sel=$('#rInst');if(ch)sel.value=CAT[ch.cat]?ch.cat+'|'+CAT[ch.cat].findIndex(i=>i[2]===ch.inst):'';
  if(lastPat!==S.cur){lastPat=S.cur;viewBars=0;rs.scrollLeft=0}
  sizeRoll();drawKeys();drawRoll();
@@ -1172,8 +1175,7 @@ function renderPlaylist(){
  PB=Math.max(32,songLen()+8,mx?Math.ceil((pw.clientWidth-LM)/BW)+1:0);
  const W=LM+PB*BW,H=TOPH+Math.max(1,NC)*TH;plc.width=W;plc.height=H;
  pc.fillStyle=TC.rbg;pc.fillRect(0,0,W,H);pc.font='14px Cuprum,sans-serif';
- if(!NC){pc.fillStyle=TC.dim;pc.fillText('No channels yet – add an instrument from the browser and it will get a track here.',LM+10,TOPH+TH/2+4)}
- const K='#000000',Lt=!!(THEMES[themeName]||{}).light,laneA=Lt?TC.p2:cmix(TC.p2,'#1e3a4c',.35),laneB=cmix(laneA,K,Lt?.05:.09),sepC=cmix(laneA,K,Lt?.22:.4),barC=cmix(laneA,K,Lt?.18:.3),big=cmix(laneA,TC.tx,.14),qC=cmix(laneA,K,Lt?.05:.1);
+  const K='#000000',Lt=!!(THEMES[themeName]||{}).light,laneA=Lt?TC.p2:cmix(TC.p2,'#1e3a4c',.35),laneB=cmix(laneA,K,Lt?.05:.09),sepC=cmix(laneA,K,Lt?.22:.4),barC=cmix(laneA,K,Lt?.18:.3),big=cmix(laneA,TC.tx,.14),qC=cmix(laneA,K,Lt?.05:.1);
  /* lanes: alternating bar shading, like a DAW arrangement view */
  for(let t=0;t<NC;t++){const y=TOPH+t*TH;
   for(let b=0;b<PB;b++){pc.fillStyle=b%2?laneB:laneA;pc.fillRect(LM+b*BW,y,BW,TH)}
@@ -1181,6 +1183,7 @@ function renderPlaylist(){
  /* grid lines: quarter-bar, bar, and every 4th bar */
  if(BW>=24)for(let b=0;b<PB;b++)for(let q=1;q<4;q++){pc.fillStyle=qC;pc.fillRect(LM+b*BW+Math.round(q*BW/4),TOPH,1,H-TOPH)}
  for(let b=0;b<=PB;b++){const x=LM+b*BW;pc.fillStyle=b%4===0?big:barC;pc.fillRect(x,TOPH,1,H-TOPH)}
+ if(!NC){const msg='No channels yet – add an instrument from the browser and it will get a track here.',tw=pc.measureText(msg).width;pc.fillStyle=laneA;pc.fillRect(LM+4,TOPH+TH/2-11,tw+12,22);pc.fillStyle=TC.dim;pc.fillText(msg,LM+10,TOPH+TH/2+4)}
  /* track headers: solid color blocks, name top-left, status light bottom-right */
  pc.fillStyle=TC.p0;pc.fillRect(0,TOPH,LM,Math.max(1,NC)*TH);
  for(let t=0;t<NC;t++){const y=TOPH+t*TH,ch=S.channels[t],col=chCol(t),tc=txtOn(col);
@@ -1308,6 +1311,7 @@ $('#rSnap').onchange=e=>{S.snap=+e.target.value};
 $('#rVel').oninput=e=>{S.vel=+e.target.value};
 $('#oDn').onclick=()=>{S.oct=Math.max(24,S.oct-12);$('#oV').textContent=mname(S.oct)};
 $('#oUp').onclick=()=>{S.oct=Math.min(84,S.oct+12);$('#oV').textContent=mname(S.oct)};
+$('#rSus').onclick=()=>{const ch=S.channels[S.sel];if(!ch)return;pushUndo();ch.sus=!ch.sus;$('#rSus').classList.toggle('on',!!ch.sus);toast('Sustain '+(ch.sus?'on':'off')+' for '+ch.name)};
 $('#rClr').onclick=()=>{const ch=S.channels[S.sel];if(ch){pushUndo();cp().notes[ch.id]=[];drawRoll();renderRack();plRefresh()}};
 $('#rAddPl').onclick=()=>{
  const ch=S.channels[S.sel];if(!ch)return;
