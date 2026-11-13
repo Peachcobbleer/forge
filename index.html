@@ -174,7 +174,7 @@ select,input[type=text],input[type=number]{border-color:var(--bd);border-radius:
 <section id="upper">
  <div id="tabs"><button data-p="rackP" class="on">Channel Rack</button><button data-p="plP">Playlist</button><button data-p="mixP">Mixer</button><button data-p="toolP">Tools</button></div>
  <div class="panel on" id="rackP"><div id="rack"></div></div>
- <div class="panel" id="plP"><div id="plBar"><button class="b" id="plPlay" title="Play / pause (Space)">▶ Play</button><button class="b" id="plStop" title="Stop">■</button><button class="b" id="plMode" title="Pattern / Song mode – SONG plays the playlist">PAT</button><button class="b" id="plMax" title="Maximize / restore the playlist (Esc to restore)">⤢ Maximize</button><button class="b" id="plCut" title="Cut tool: click a block in the playlist to split it (also cuts imported audio)">✂ Cut</button><button class="b on" id="bLoop" title="Loop playback on/off (applies to pattern and song mode)">⟲ Loop: On</button><label>Zoom ↔ <input type="range" id="plZX" min="1" max="4" step=".25" value="1" style="width:70px;accent-color:var(--ac)"></label><label>↕ <input type="range" id="plZY" min="1" max="4" step=".25" value="1" style="width:70px;accent-color:var(--ac)"></label></div><div id="plWrap"><canvas id="plc"></canvas><div id="phL"></div><div id="phC"></div></div></div>
+ <div class="panel" id="plP"><div id="plBar"><button class="b" id="plPlay" title="Play / pause (Space)">▶ Play</button><button class="b" id="plStop" title="Stop">■</button><button class="b" id="plMode" title="Pattern / Song mode – SONG plays the playlist">PAT</button><button class="b" id="plMax" title="Maximize / restore the playlist (Esc to restore)">⤢ Maximize</button><button class="b" id="plCut" title="Cut tool: click a block in the playlist to split it (also cuts imported audio)">✂ Cut</button><button class="b" id="plQD" title="Quick delete: when on, right-clicking a block deletes it instantly; when off, right-click opens the menu">🗑 Quick delete</button><button class="b on" id="bLoop" title="Loop playback on/off (applies to pattern and song mode)">⟲ Loop: On</button><label>Zoom ↔ <input type="range" id="plZX" min="1" max="4" step=".25" value="1" style="width:70px;accent-color:var(--ac)"></label><label>↕ <input type="range" id="plZY" min="1" max="4" step=".25" value="1" style="width:70px;accent-color:var(--ac)"></label></div><div id="plWrap"><canvas id="plc"></canvas><div id="phL"></div><div id="phC"></div></div></div>
  <div class="panel" id="mixP"><div id="mixBar"><span id="mixTime">001:1:1</span><div id="mixTrack" title="Playback position – click or drag to jump"><div id="mixFill"></div><div id="mixTicks"></div><div id="mixHead"></div></div><span id="mixLen"></span></div><div id="mix"></div></div>
  <div class="panel" id="toolP"><div id="tools"></div></div>
 </section>
@@ -504,6 +504,14 @@ const songLen=()=>Math.max(1,...S.playlist.map(c=>Math.ceil(bEnd(c)-1e-9)));
 const loopLen=()=>S.mode==='pat'?cp().bars*16:songLen()*16;
 const anySolo=()=>S.channels.some(c=>c.solo);
 function audible(ch){return !ch.mute&&(!anySolo()||ch.solo)}
+/* per-block volume and fade in/out (in beats), applied to each note by its position inside the block */
+function clipGain(blk,n){
+ if(!blk||(blk.vol==null&&!blk.fi&&!blk.fo))return 1;
+ let g=blk.vol==null?1:blk.vol;const off=blk.off||0,L=blen(blk),mid=n.t+Math.min(n.d,Math.max(0,off+L-n.t))/2-off;
+ if(blk.fi>0)g*=Math.max(0,Math.min(1,mid/(blk.fi*4)));
+ if(blk.fo>0)g*=Math.max(0,Math.min(1,(L-mid)/(blk.fo*4)));
+ return g;
+}
 function trigPat(p,ls,time,only,blk){
  const sd=stepDur(),off=blk?(blk.off||0):0,cutB=!!blk&&(blk.len!=null||off>0),lim=cutB?off+blen(blk):1e9;
  for(const ch of S.channels){
@@ -511,7 +519,7 @@ function trigPat(p,ls,time,only,blk){
   if(!audible(ch))continue;
   const L=p.notes[ch.id];if(!L)continue;
   for(const n of L){
-   if(Math.floor(n.t+1e-6)===ls)playNote(ch,n.n,time+(n.t-ls)*sd,Math.min(n.d,lim-n.t)*sd,n.v,undefined,n);
+   if(Math.floor(n.t+1e-6)===ls)playNote(ch,n.n,time+(n.t-ls)*sd,Math.min(n.d,lim-n.t)*sd,n.v*clipGain(blk,n),undefined,n);
    else if(cutB&&off>0&&ls===off&&ch.type==='smp'&&n.t<off&&n.t+n.d>off)playNote(ch,n.n,time,(Math.min(n.d,lim-n.t)-(off-n.t))*sd,n.v,(off-n.t)*sd,n);
   }
  }
@@ -537,7 +545,7 @@ function sched(){
   }
  }
 }
-function startPlay(){
+function startPlay(){syncAuto();
  initAudio();ctx.resume();if(playing)return;
  if(S.mode==='song'&&!S.playlist.length)toast('Playlist is empty – open the Playlist tab and left-click to place patterns.');
  clearTimeout(endTO);curStep=startStep<loopLen()?startStep:0;nextTime=ctx.currentTime+.1;visQ=[];playing=true;timer=setInterval(sched,25);sched();updPlay();
@@ -664,7 +672,7 @@ instMenu.addEventListener('click',e=>{
 });
 /* ----- Tools tab: drum sampler + sample editor ----- */
 let tl={src:'pad',chId:-1,pad:0,smpCh:-1,a:0,b:0};
-let seqPaint=null,edDrag=null,cutMode=false;
+let seqPaint=null,edDrag=null,cutMode=false,quickDel=false;
 const tools=$('#tools');
 function openTab(id){if($('#app').classList.contains('rollmax'))toggleRollMax(false);const b=document.querySelector('#tabs button[data-p="'+id+'"]');if(b)b.click()}
 function openToolsFromSel(){const ch=S.channels[S.sel];if(ch&&ch.type==='smp'){tl.src='smp';tl.smpCh=ch.id;tl.a=tl.b=0}else if(ch&&ch.type==='dsm'){tl.chId=ch.id}renderTools()}
@@ -823,6 +831,54 @@ tools.addEventListener('drop',e=>{
  const d=dsmCh(),f=[...e.dataTransfer.files].find(isAud);if(!d||!f)return;
  tl.src='pad';tl.chId=d.id;tl.pad=+pad.dataset.i;tl.a=tl.b=0;importInto(f,edSample());
 });
+/* new playlist blocks are trimmed so the first note starts at the left edge and the last note ends at the right edge */
+function newClip(pat,cid,bar){
+ const p=S.patterns[pat],L=p.notes[cid]||[],c={pat,ch:cid,bar};
+ c.auto=true;c.a0=bar;
+ if(L.length){const f=Math.max(0,Math.min(...L.map(n=>n.t))),e=Math.min(p.bars*16,Math.max(...L.map(n=>n.t+n.d)));if(e>f){c.a0=bar-f/16;if(f>0||e<p.bars*16){c.off=f;c.len=e-f}}}
+ return c;
+}
+/* auto-trimmed blocks follow their pattern: when notes are added or moved, the block grows/shrinks so first and last note stay on its edges */
+function syncAuto(){
+ for(const c of S.playlist){
+  if(!c.auto)continue;const p=S.patterns[c.pat],L=p&&p.notes[c.ch];if(!L||!L.length)continue;
+  const f=Math.max(0,Math.min(...L.map(n=>n.t))),e=Math.min(p.bars*16,Math.max(...L.map(n=>n.t+n.d)));if(e<=f)continue;
+  const a0=c.a0!=null?c.a0:c.bar-(c.off||0)/16;c.a0=a0;c.bar=a0+f/16;c.off=f;c.len=e-f;
+ }
+}
+/* ----- playlist right-click menu ----- */
+function closeClipMenu(){document.querySelectorAll('.clipMenu').forEach(m=>m.remove())}
+function clipMenu(e,cid,barF){
+ closeClipMenu();
+ const c=S.playlist.find(c=>c.ch===cid&&barF>=c.bar&&barF<bEnd(c));if(!c)return;
+ const m=document.createElement('div');m.className='clipMenu';
+ m.style.cssText='position:fixed;z-index:95;min-width:150px;background:var(--p1);color:var(--tx);border:1px solid var(--bd);border-radius:6px;box-shadow:0 8px 28px rgba(0,0,0,.55);padding:4px;user-select:none';
+ const item=(label,fn,col)=>{const b=document.createElement('div');b.textContent=label;b.style.cssText='padding:6px 12px;border-radius:4px;cursor:pointer'+(col?';color:'+col:'');b.onmouseenter=()=>b.style.background='var(--t2)';b.onmouseleave=()=>b.style.background='';b.onclick=()=>{closeClipMenu();fn()};m.appendChild(b)};
+ item('Adjust settings',()=>clipSettings(c,e.clientX,e.clientY));
+ item('Delete',()=>{pushUndo();S.playlist=S.playlist.filter(o=>o!==c);renderPlaylist()},'#e57373');
+ item('Cancel',()=>{});
+ document.body.appendChild(m);
+ m.style.left=Math.min(e.clientX,innerWidth-m.offsetWidth-4)+'px';m.style.top=Math.min(e.clientY,innerHeight-m.offsetHeight-4)+'px';
+ const away=ev=>{if(!m.contains(ev.target)){closeClipMenu();removeEventListener('mousedown',away,true);removeEventListener('keydown',esc,true)}},esc=ev=>{if(ev.key==='Escape'){closeClipMenu();removeEventListener('mousedown',away,true);removeEventListener('keydown',esc,true)}};
+ addEventListener('mousedown',away,true);addEventListener('keydown',esc,true);
+}
+function clipSettings(c,px,py){
+ document.querySelectorAll('.clipSet').forEach(m=>m.remove());
+ const p=document.createElement('div');p.className='clipSet';
+ p.style.cssText='position:fixed;z-index:95;width:260px;background:var(--p1);color:var(--tx);border:1px solid var(--bd);border-radius:6px;box-shadow:0 8px 28px rgba(0,0,0,.55);user-select:none';
+ const rows=[['vol','Volume',0,1.5,.01,v=>Math.round(v*100)+'%',1],['fi','Fade in',0,8,.25,v=>v+' beats',0],['fo','Fade out',0,8,.25,v=>v+' beats',0]];
+ let h='<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:linear-gradient(var(--t1),var(--t2));border-bottom:1px solid var(--bd);border-radius:6px 6px 0 0"><b style="color:var(--ac);letter-spacing:1px;text-transform:uppercase">Pattern settings</b><button class="b" data-x>✕</button></div><div style="padding:6px 10px 10px">';
+ for(const[k,l,mn,mx,st,f,d]of rows){const v=c[k]==null?d:c[k];h+=`<div style="display:grid;grid-template-columns:64px 1fr 62px;gap:6px;align-items:center;margin:6px 0"><span>${l}</span><input type="range" data-k="${k}" min="${mn}" max="${mx}" step="${st}" value="${v}" style="width:100%;accent-color:var(--ac)"><span data-o="${k}" style="color:var(--dim);text-align:right">${f(v)}</span></div>`}
+ h+='<button class="b" data-r style="width:100%;margin-top:6px">Reset</button></div>';
+ p.innerHTML=h;document.body.appendChild(p);
+ p.style.left=Math.max(4,Math.min(px,innerWidth-p.offsetWidth-4))+'px';p.style.top=Math.max(4,Math.min(py,innerHeight-p.offsetHeight-4))+'px';
+ let u=false;
+ p.addEventListener('keydown',ev=>ev.stopPropagation());
+ p.addEventListener('input',ev=>{const k=ev.target.dataset&&ev.target.dataset.k;if(!k)return;if(!u){pushUndo();u=true}
+  const r=rows.find(r=>r[0]===k),v=+ev.target.value;c[k]=v;if(k!=='vol'&&!v)delete c[k];p.querySelector(`[data-o="${k}"]`).textContent=r[5](v);plRefresh&&plRefresh()});
+ p.querySelector('[data-r]').onclick=()=>{pushUndo();delete c.vol;delete c.fi;delete c.fo;p.remove();clipSettings(c,px,py)};
+ p.querySelector('[data-x]').onclick=()=>p.remove();
+}
 /* ----- playlist cut tool ----- */
 function cutAt(cid,barF){
  const pos=barF*16,c=S.playlist.find(c=>c.ch===cid&&pos>=c.bar*16&&pos<c.bar*16+blen(c));
@@ -830,7 +886,7 @@ function cutAt(cid,barF){
  const snap=BW>=100?1:4,cp2=Math.round(pos/snap)*snap,local=cp2-c.bar*16,L=blen(c);
  if(local<=0||local>=L){toast('Too close to the block edge – click nearer the middle.');return}
  pushUndo();
- S.playlist.push({pat:c.pat,ch:c.ch,bar:cp2/16,off:(c.off||0)+local,len:L-local});c.len=local;
+ S.playlist.push({pat:c.pat,ch:c.ch,bar:cp2/16,off:(c.off||0)+local,len:L-local});c.len=local;delete c.auto;delete c.a0;
  renderPlaylist();
 }
 $('#plCut').onclick=()=>{
@@ -947,7 +1003,7 @@ function drawKeys(){
  }
  const sh=kc.createLinearGradient(52,0,56,0);sh.addColorStop(0,'rgba(0,0,0,0)');sh.addColorStop(1,'rgba(0,0,0,.45)');kc.fillStyle=sh;kc.fillRect(52,0,4,H);
 }
-function drawRoll(){
+function drawRoll(){syncAuto();
  nsRefresh();
  const ch=S.channels[S.sel],p=cp(),W=p.bars*16,gw=grid.width,h=ROWS*RH,ox=$('#rollScroll').scrollLeft,x1=ox+gw;
  gc.setTransform(1,0,0,1,0,0);gc.clearRect(0,0,gw,h);gc.translate(-ox,0);
@@ -1169,7 +1225,7 @@ const lb=new Float32Array(512);
 function level(an){an.getFloatTimeDomainData(lb);let s=0;for(let i=0;i<512;i++)s+=lb[i]*lb[i];const db=20*Math.log10(Math.sqrt(s/512)+1e-6);return Math.max(0,Math.min(100,(db+60)/60*100))}
 /* ---------- playlist ---------- */
 let PB=32,TH=32,BW=36,plZX=1,plZY=1;const LM=120,TOPH=20,plc=$('#plc'),pc=plc.getContext('2d');
-function renderPlaylist(){
+function renderPlaylist(){syncAuto();
  const NC=S.channels.length,mx=$('#app').classList.contains('plmax'),pw=$('#plP');
  BW=Math.round(36*plZX);TH=Math.round((mx?Math.max(32,Math.min(72,Math.floor((pw.clientHeight-TOPH-70)/Math.max(1,NC)))):32)*plZY);
  PB=Math.max(32,songLen()+8,mx?Math.ceil((pw.clientWidth-LM)/BW)+1:0);
@@ -1217,20 +1273,24 @@ function renderPlaylist(){
   pc.fillStyle=cc;pc.fillRect(x,y,w,hh);
   pc.fillStyle='rgba(255,255,255,.12)';pc.fillRect(x,y,w,1);
   pc.font='bold 12.5px Cuprum,sans-serif';pc.fillStyle=txtOn(cc);pc.fillText(fitText(p.name,Math.max(10,w-8)),x+4,y+hh-3);pc.font='14px Cuprum,sans-serif';
+  /* fade in/out: dark wedge with a diagonal line, like on piano roll notes */
+  if(c.fi>0){const f=Math.min(w,c.fi*4*spx);pc.fillStyle='rgba(0,0,0,.4)';pc.beginPath();pc.moveTo(x,y);pc.lineTo(x+f,y);pc.lineTo(x,y+h);pc.closePath();pc.fill();pc.strokeStyle='rgba(255,255,255,.85)';pc.lineWidth=1.5;pc.beginPath();pc.moveTo(x,y+h);pc.lineTo(x+f,y);pc.stroke();pc.lineWidth=1}
+  if(c.fo>0){const f=Math.min(w,c.fo*4*spx),xe=x+w;pc.fillStyle='rgba(0,0,0,.4)';pc.beginPath();pc.moveTo(xe,y);pc.lineTo(xe-f,y);pc.lineTo(xe,y+h);pc.closePath();pc.fill();pc.strokeStyle='rgba(255,255,255,.85)';pc.lineWidth=1.5;pc.beginPath();pc.moveTo(xe-f,y);pc.lineTo(xe,y+h);pc.stroke();pc.lineWidth=1}
   pc.restore();
   pc.strokeStyle=cmix(cc,K,.55);pc.strokeRect(x+.5,y+.5,w-1,h-1);
  }
 }
 plc.addEventListener('mousedown',e=>{
  const r=plc.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;
- const bar=Math.floor((x-LM)/BW),tr=Math.floor((y-TOPH)/TH);if(bar<0||bar>=PB||tr<0||tr>=S.channels.length)return;if(cutMode&&e.button===0){cutAt(S.channels[tr].id,(x-LM)/BW);return}pushUndo();const cid=S.channels[tr].id,barF=(x-LM)/BW;
- if(e.button===2){S.playlist=S.playlist.filter(c=>!(c.ch===cid&&barF>=c.bar&&barF<bEnd(c)))}
- else if(e.button===0){
-  const p=cp();S.playlist=S.playlist.filter(c=>!(c.ch===cid&&c.bar<bar+p.bars&&bar<bEnd(c)));
-  S.playlist.push({pat:S.cur,ch:cid,bar});
+ const bar=Math.floor((x-LM)/BW),tr=Math.floor((y-TOPH)/TH);if(bar<0||bar>=PB||tr<0||tr>=S.channels.length)return;if(cutMode&&e.button===0){cutAt(S.channels[tr].id,(x-LM)/BW);return}const cid=S.channels[tr].id,barF=(x-LM)/BW;if(e.button===2){if(quickDel){const c=S.playlist.find(c=>c.ch===cid&&barF>=c.bar&&barF<bEnd(c));if(c){pushUndo();S.playlist=S.playlist.filter(o=>o!==c);renderPlaylist()}}else clipMenu(e,cid,barF);return}pushUndo();
+ if(e.button===0){
+  const nb=Math.floor((x-LM)/BW*4)/4,nc=newClip(S.cur,cid,nb),ne=nb+blen(nc)/16;
+  S.playlist=S.playlist.filter(c=>!(c.ch===cid&&c.bar<ne-1e-9&&nb<bEnd(c)-1e-9));
+  S.playlist.push(nc);
  }
  renderPlaylist();
 });
+$('#plQD').onclick=()=>{quickDel=!quickDel;$('#plQD').classList.toggle('on',quickDel);closeClipMenu()};
 plc.addEventListener('contextmenu',e=>e.preventDefault());
 /* track name box: click the ring = color, double-click the name = rename */
 const TRKCOL=['#e57373','#f0a35e','#e6c84f','#7bc67b','#4fc3b8','#5aa9e6','#9a7fe0','#d478b8'];
@@ -1316,9 +1376,9 @@ $('#rClr').onclick=()=>{const ch=S.channels[S.sel];if(ch){pushUndo();cp().notes[
 $('#rAddPl').onclick=()=>{
  const ch=S.channels[S.sel];if(!ch)return;
  const p=cp();pushUndo();
- let bar=0,moved=true;
- while(moved){moved=false;for(const c of S.playlist){if(c.ch!==ch.id)continue;const e=bEnd(c);if(c.bar<bar+p.bars&&bar<e){bar=Math.ceil(e-1e-9);moved=true}}}
- S.playlist.push({pat:S.cur,ch:ch.id,bar});
+ let bar=0,moved=true;const w=blen(newClip(S.cur,ch.id,0))/16;
+ while(moved){moved=false;for(const c of S.playlist){if(c.ch!==ch.id)continue;const e=bEnd(c);if(c.bar<bar+w-1e-9&&bar<e-1e-9){bar=Math.ceil(e*4-1e-9)/4;moved=true}}}
+ S.playlist.push(newClip(S.cur,ch.id,bar));
  renderPlaylist();toast('Added "'+p.name+'" to the playlist on '+ch.name+' at bar '+(bar+1)+'.');
 };
 function saveProject(){if(S.channels.some(c=>c.type==='smp'))toast('Note: imported audio is not stored inside the project file – re-import it after loading.');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({S,nextId})],{type:'application/json'}));a.download='forge-studio-project.json';a.click()}
